@@ -43,7 +43,7 @@
             width: 100vw !important;
             max-width: 100vw !important;
             margin: 0 !important;
-            padding: 0 0 env(safe-area-inset-bottom, 0) 0 !important;
+            padding: 10px 0 calc(env(safe-area-inset-bottom, 0px) + 10px) 0 !important;
             border: none !important;
             background: white !important;
             z-index: 999999 !important;
