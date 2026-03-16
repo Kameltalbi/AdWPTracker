@@ -246,11 +246,11 @@ class ADWPT_Admin {
         
         // === GESTION DES CONTENUS ===
         
-        // Liste complète (shortcodes centralisés)
+        // Liste des Annonces & Zones (shortcodes centralisés)
         add_submenu_page(
             'adwptracker',
-            __('Liste Complète', 'adwptracker'),
-            __('📋 Liste Complète', 'adwptracker'),
+            __('Liste des Annonces & Zones', 'adwptracker'),
+            __('📋 Liste des Annonces & Zones', 'adwptracker'),
             'manage_options',
             'adwptracker-liste',
             [$this, 'render_liste_page']
@@ -278,7 +278,7 @@ class ADWPT_Admin {
         add_submenu_page(
             'adwptracker',
             __('Nouvelle Annonce', 'adwptracker'),
-            __('&nbsp;&nbsp;&nbsp;➕ Nouvelle Annonce', 'adwptracker'),
+            __('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✨ Nouvelle Annonce', 'adwptracker'),
             'manage_options',
             'post-new.php?post_type=adwpt_ad'
         );
@@ -296,7 +296,7 @@ class ADWPT_Admin {
         add_submenu_page(
             'adwptracker',
             __('Nouvelle Zone', 'adwptracker'),
-            __('&nbsp;&nbsp;&nbsp;➕ Nouvelle Zone', 'adwptracker'),
+            __('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✨ Nouvelle Zone', 'adwptracker'),
             'manage_options',
             'post-new.php?post_type=adwpt_zone'
         );
@@ -397,6 +397,14 @@ class ADWPT_Admin {
             ADWPT_VERSION
         );
         
+        // Enqueue admin menu styling
+        wp_enqueue_style(
+            'adwptracker-admin-menu',
+            ADWPT_PLUGIN_URL . 'assets/css/admin-menu.css',
+            [],
+            ADWPT_VERSION
+        );
+        
         // Dashboard modern CSS
         if (strpos($hook, 'adwptracker') !== false) {
             wp_enqueue_style(
@@ -437,6 +445,12 @@ class ADWPT_Admin {
      * Render dashboard page
      */
     public function render_dashboard() {
+        if (!class_exists('ADWPT_Dashboard')) {
+            require_once ADWPT_PLUGIN_DIR . 'includes/class-adwpt-dashboard.php';
+        }
+        ADWPT_Dashboard::render();
+        return;
+        
         if (!class_exists('ADWPT_Stats')) {
             echo '<div class="wrap"><h1>Erreur</h1><p>La classe ADWPT_Stats n\'est pas chargée.</p></div>';
             return;
@@ -1018,21 +1032,34 @@ class ADWPT_Admin {
      * Render settings page
      */
     public function render_settings_page() {
+        if (!class_exists('ADWPT_Settings')) {
+            require_once ADWPT_PLUGIN_DIR . 'includes/class-adwpt-settings.php';
+        }
+        ADWPT_Settings::render();
+        return;
         ?>
         <div class="wrap">
-            <h1>⚙️ <?php esc_html_e('Settings', 'adwptracker'); ?></h1>
+            <h1 style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+                <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px;">⚙️</span>
+                <span style="font-weight: 600;"><?php esc_html_e('Paramètres', 'adwptracker'); ?></span>
+            </h1>
             
             <?php
             // Handle form submission
             if (isset($_POST['adwpt_settings_submit'])) {
                 check_admin_referer('adwpt_settings_nonce');
                 
-                // Save settings
+                // Save all settings
                 update_option('adwpt_tracking_enabled', isset($_POST['tracking_enabled']) ? '1' : '0');
                 update_option('adwpt_notification_email', sanitize_email($_POST['notification_email']));
-                update_option('adwpt_dark_mode', isset($_POST['dark_mode']) ? '1' : '0');
+                update_option('adwpt_cache_enabled', isset($_POST['cache_enabled']) ? '1' : '0');
+                update_option('adwpt_cache_duration', intval($_POST['cache_duration']));
+                update_option('adwpt_lazy_load', isset($_POST['lazy_load']) ? '1' : '0');
+                update_option('adwpt_auto_optimize', isset($_POST['auto_optimize']) ? '1' : '0');
+                update_option('adwpt_gdpr_mode', isset($_POST['gdpr_mode']) ? '1' : '0');
+                update_option('adwpt_data_retention', intval($_POST['data_retention']));
                 
-                echo '<div class="notice notice-success is-dismissible"><p><strong>' . __('Settings saved!', 'adwptracker') . '</strong></p></div>';
+                echo '<div class="notice notice-success is-dismissible" style="border-left: 4px solid #10b981;"><p><strong>✅ ' . __('Paramètres enregistrés avec succès !', 'adwptracker') . '</strong></p></div>';
             }
             
             // Handle reset stats
@@ -1043,13 +1070,44 @@ class ADWPT_Admin {
                 $table_name = $wpdb->prefix . 'adwpt_stats';
                 $wpdb->query("TRUNCATE TABLE $table_name");
                 
-                echo '<div class="notice notice-success is-dismissible"><p><strong>' . __('Statistics reset successfully!', 'adwptracker') . '</strong></p></div>';
+                echo '<div class="notice notice-success is-dismissible" style="border-left: 4px solid #10b981;"><p><strong>✅ ' . __('Statistiques réinitialisées avec succès !', 'adwptracker') . '</strong></p></div>';
+            }
+            
+            // Handle export settings
+            if (isset($_POST['adwpt_export_settings'])) {
+                check_admin_referer('adwpt_export_settings_nonce');
+                
+                $settings = [
+                    'tracking_enabled' => get_option('adwpt_tracking_enabled', '1'),
+                    'notification_email' => get_option('adwpt_notification_email'),
+                    'cache_enabled' => get_option('adwpt_cache_enabled', '0'),
+                    'cache_duration' => get_option('adwpt_cache_duration', '3600'),
+                    'lazy_load' => get_option('adwpt_lazy_load', '0'),
+                    'auto_optimize' => get_option('adwpt_auto_optimize', '0'),
+                    'gdpr_mode' => get_option('adwpt_gdpr_mode', '0'),
+                    'data_retention' => get_option('adwpt_data_retention', '90'),
+                ];
+                
+                header('Content-Type: application/json');
+                header('Content-Disposition: attachment; filename="adwptracker-settings-' . date('Y-m-d') . '.json"');
+                echo json_encode($settings, JSON_PRETTY_PRINT);
+                exit;
             }
             
             // Get current settings
             $tracking_enabled = get_option('adwpt_tracking_enabled', '1');
             $notification_email = get_option('adwpt_notification_email', get_option('admin_email'));
-            $dark_mode = get_option('adwpt_dark_mode', '0');
+            $cache_enabled = get_option('adwpt_cache_enabled', '0');
+            $cache_duration = get_option('adwpt_cache_duration', '3600');
+            $lazy_load = get_option('adwpt_lazy_load', '0');
+            $auto_optimize = get_option('adwpt_auto_optimize', '0');
+            $gdpr_mode = get_option('adwpt_gdpr_mode', '0');
+            $data_retention = get_option('adwpt_data_retention', '90');
+            
+            // Get database stats
+            global $wpdb;
+            $stats_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}adwpt_stats");
+            $db_size = $wpdb->get_var("SELECT ROUND(((data_length + index_length) / 1024 / 1024), 2) as size FROM information_schema.TABLES WHERE table_schema = '" . DB_NAME . "' AND table_name = '{$wpdb->prefix}adwpt_stats'");
             ?>
             
             <div style="max-width: 900px; margin-top: 20px;">

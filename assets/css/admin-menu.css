@@ -1,0 +1,53 @@
+/* Custom Admin Menu Styling for AdWPtracker */
+
+/* Style submenu items */
+#adminmenu .wp-submenu a {
+    transition: all 0.3s ease;
+}
+
+/* Nouvelle Annonce & Nouvelle Zone styling */
+#adminmenu .wp-submenu a[href*="post-new.php?post_type=adwpt_ad"],
+#adminmenu .wp-submenu a[href*="post-new.php?post_type=adwpt_zone"] {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%) !important;
+    border-left: 3px solid #10b981 !important;
+    font-weight: 500 !important;
+    padding-left: 20px !important;
+}
+
+#adminmenu .wp-submenu a[href*="post-new.php?post_type=adwpt_ad"]:hover,
+#adminmenu .wp-submenu a[href*="post-new.php?post_type=adwpt_zone"]:hover {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, transparent 100%) !important;
+    border-left-color: #059669 !important;
+    padding-left: 25px !important;
+}
+
+/* Main menu items (Annonces, Zones) */
+#adminmenu .wp-submenu a[href*="edit.php?post_type=adwpt_ad"],
+#adminmenu .wp-submenu a[href*="edit.php?post_type=adwpt_zone"] {
+    font-weight: 600 !important;
+    color: #f0f0f1 !important;
+}
+
+/* Separator styling */
+#adminmenu .wp-submenu li:has(a[href="#"]) {
+    pointer-events: none;
+    margin: 8px 0;
+}
+
+/* AdWPtracker main menu icon */
+#adminmenu #toplevel_page_adwptracker .wp-menu-image {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    border-radius: 8px;
+    margin: 4px;
+}
+
+#adminmenu #toplevel_page_adwptracker:hover .wp-menu-image,
+#adminmenu #toplevel_page_adwptracker.wp-has-current-submenu .wp-menu-image {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+}
+
+/* Active submenu item */
+#adminmenu .wp-submenu li.current a {
+    font-weight: 600 !important;
+    color: #10b981 !important;
+}

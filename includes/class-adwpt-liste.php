@@ -13,7 +13,7 @@ class ADWPT_Liste {
     public static function render_page() {
         ?>
         <div class="wrap">
-            <h1>📋 <?php esc_html_e('Liste Complète - Ads & Zones', 'adwptracker'); ?></h1>
+            <h1>📋 <?php esc_html_e('Liste des Annonces & Zones', 'adwptracker'); ?></h1>
             
             <style>
                 .adwpt-liste-table {
