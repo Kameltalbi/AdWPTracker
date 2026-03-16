@@ -39,6 +39,11 @@ $wpdb->query("DROP TABLE IF EXISTS {$table_name}");
 // Delete plugin options
 delete_option('adwptracker_version');
 delete_option('adwptracker_db_version');
+delete_option('adwptracker_tracking_enabled');
+delete_option('adwptracker_cache_compatible');
+delete_option('adwpt_tracking_enabled');
+delete_option('adwpt_notification_email');
+delete_option('adwpt_dark_mode');
 
 // Clear any cached data
 wp_cache_flush();

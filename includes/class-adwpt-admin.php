@@ -39,8 +39,13 @@ class ADWPT_Admin {
      * Show notice after publishing
      */
     public function show_publish_notice() {
-        if (isset($_GET['published']) && $_GET['published'] == '1') {
-            $post_type = isset($_GET['post_type']) ? $_GET['post_type'] : '';
+        if (isset($_GET['published']) && $_GET['published'] === '1') {
+            // Verify nonce for security
+            if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'adwpt_publish_notice')) {
+                return;
+            }
+            
+            $post_type = isset($_GET['post_type']) ? sanitize_text_field($_GET['post_type']) : '';
             
             if ($post_type === 'adwpt_ad') {
                 $message = '✅ Annonce publiée avec succès !';
@@ -72,11 +77,14 @@ class ADWPT_Admin {
             return $location;
         }
         
+        // Create nonce for the notice
+        $nonce = wp_create_nonce('adwpt_publish_notice');
+        
         // Redirect to list page with success message
         if ($post->post_type === 'adwpt_ad') {
-            return admin_url('edit.php?post_type=adwpt_ad&published=1');
+            return add_query_arg(['published' => '1', '_wpnonce' => $nonce], admin_url('edit.php?post_type=adwpt_ad'));
         } elseif ($post->post_type === 'adwpt_zone') {
-            return admin_url('edit.php?post_type=adwpt_zone&published=1');
+            return add_query_arg(['published' => '1', '_wpnonce' => $nonce], admin_url('edit.php?post_type=adwpt_zone'));
         }
         
         return $location;

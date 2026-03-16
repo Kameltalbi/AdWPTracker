@@ -106,7 +106,6 @@
         // CRITICAL: Hide on desktop immediately
         if (isDesktop()) {
             footer.style.display = 'none';
-            console.log('AdWPtracker: Sticky hidden on desktop');
             return;
         }
         
@@ -151,8 +150,6 @@
                 
                 // Store in sessionStorage to not show again during session
                 sessionStorage.setItem('adwptracker_sticky_closed', '1');
-                
-                console.log('AdWPtracker: Sticky closed');
             });
         }
         
@@ -187,8 +184,6 @@
                 });
             }
         }
-        
-        console.log('AdWPtracker: Sticky footer mobile initialized');
     }
     
     /**
@@ -212,7 +207,7 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log('AdWPtracker: Impression tracked', data);
+            // Impression tracked successfully
         })
         .catch(error => {
             console.error('AdWPtracker: Track impression error', error);
@@ -240,7 +235,7 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log('AdWPtracker: Click tracked', data);
+            // Click tracked successfully
         })
         .catch(error => {
             console.error('AdWPtracker: Track click error', error);
@@ -261,7 +256,6 @@
         
         if (isDesktop()) {
             footer.style.display = 'none';
-            console.log('AdWPtracker: Sticky hidden on desktop (resize)');
         } else {
             if (sessionStorage.getItem('adwptracker_sticky_closed') !== '1') {
                 forceStyles();

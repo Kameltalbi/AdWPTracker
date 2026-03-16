@@ -16,6 +16,12 @@
      * Send AJAX request
      */
     function sendAjax(action, data, callback) {
+        // Check if adwptrackerData is available
+        if (typeof adwptrackerData === 'undefined' || !adwptrackerData.ajax_url || !adwptrackerData.nonce) {
+            console.error('AdWPtracker: Tracking data not available');
+            return;
+        }
+        
         const formData = new FormData();
         formData.append('action', action);
         formData.append('nonce', adwptrackerData.nonce);

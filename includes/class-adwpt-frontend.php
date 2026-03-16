@@ -524,6 +524,10 @@ class ADWPT_Frontend {
         $type = get_post_meta($ad_id, '_adwpt_type', true) ?: 'image';
         $image_url = get_post_meta($ad_id, '_adwpt_image_url', true);
         $html_code = get_post_meta($ad_id, '_adwpt_html_code', true);
+        $text_title = get_post_meta($ad_id, '_adwpt_text_title', true);
+        $text_content = get_post_meta($ad_id, '_adwpt_text_content', true);
+        $video_url = get_post_meta($ad_id, '_adwpt_video_url', true);
+        $video_type = get_post_meta($ad_id, '_adwpt_video_type', true) ?: 'youtube';
         $link_url = get_post_meta($ad_id, '_adwpt_link_url', true);
         $link_target = get_post_meta($ad_id, '_adwpt_link_target', true) ?: '_blank';
         
@@ -572,8 +576,54 @@ class ADWPT_Frontend {
                              alt="<?php echo esc_attr($valid_ad->post_title); ?>"
                              style="width: 100%; max-width: 100%; height: auto; display: block; margin: 0; padding: 0; box-sizing: border-box; object-fit: contain; border: none;">
                     <?php endif; ?>
+                    
                 <?php elseif ($type === 'html' && $html_code): ?>
                     <?php echo wp_kses_post($html_code); ?>
+                    
+                <?php elseif ($type === 'text' && ($text_title || $text_content)): ?>
+                    <?php 
+                    $wrapper_style = 'display: block; padding: 15px; background: #f8f9fa; text-decoration: none; color: inherit; width: 100%; box-sizing: border-box;';
+                    if ($link_url) {
+                        echo '<a href="' . esc_url($link_url) . '" class="adwptracker-link" target="' . esc_attr($link_target) . '" data-ad-id="' . esc_attr($ad_id) . '" data-zone-id="' . esc_attr($zone_id) . '" style="' . esc_attr($wrapper_style) . '">';
+                    } else {
+                        echo '<div style="padding: 15px; background: #f8f9fa; width: 100%; box-sizing: border-box;">';
+                    }
+                    ?>
+                        <?php if ($text_title): ?>
+                            <h3 style="margin: 0 0 8px 0; font-size: 16px; color: #2271b1; font-weight: 600;"><?php echo esc_html($text_title); ?></h3>
+                        <?php endif; ?>
+                        <?php if ($text_content): ?>
+                            <p style="margin: 0; color: #50575e; line-height: 1.4; font-size: 13px;"><?php echo nl2br(esc_html($text_content)); ?></p>
+                        <?php endif; ?>
+                    <?php echo $link_url ? '</a>' : '</div>'; ?>
+                    
+                <?php elseif ($type === 'video' && $video_url): ?>
+                    <?php
+                    $embed = '';
+                    if ($video_type === 'youtube') {
+                        preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?\s]+)/', $video_url, $m);
+                        if (isset($m[1])) {
+                            $embed = '<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;"><iframe src="https://www.youtube.com/embed/' . esc_attr($m[1]) . '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>';
+                        }
+                    } elseif ($video_type === 'vimeo') {
+                        preg_match('/vimeo\.com\/(\d+)/', $video_url, $m);
+                        if (isset($m[1])) {
+                            $embed = '<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;"><iframe src="https://player.vimeo.com/video/' . esc_attr($m[1]) . '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe></div>';
+                        }
+                    } elseif ($video_type === 'mp4') {
+                        $embed = '<video controls style="width: 100%; max-width: 100%; height: auto; display: block;"><source src="' . esc_url($video_url) . '" type="video/mp4">Votre navigateur ne supporte pas la vidéo HTML5.</video>';
+                    }
+                    
+                    if ($embed) {
+                        if ($link_url) {
+                            echo '<a href="' . esc_url($link_url) . '" target="' . esc_attr($link_target) . '" class="adwptracker-link" data-ad-id="' . esc_attr($ad_id) . '" data-zone-id="' . esc_attr($zone_id) . '" style="display: block; width: 100%;">';
+                        }
+                        echo $embed;
+                        if ($link_url) {
+                            echo '</a>';
+                        }
+                    }
+                    ?>
                 <?php endif; ?>
             </div>
         </div>
