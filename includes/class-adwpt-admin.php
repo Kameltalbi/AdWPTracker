@@ -1862,41 +1862,63 @@ if (function_exists('adwptracker_display_zone')) {<br>
             </tr>
             
             <tr>
-                <th><label for="adwpt_display_mode"><?php esc_html_e('Mode d\'affichage', 'adwptracker'); ?></label></th>
+                <th><label for="adwpt_display_mode">🎨 <?php esc_html_e('Mode d\'affichage', 'adwptracker'); ?></label></th>
                 <td>
-                    <select name="adwpt_display_mode" id="adwpt_display_mode" class="regular-text">
-                        <option value="random" <?php selected($display_mode, 'random'); ?>><?php esc_html_e('Random (1 ad)', 'adwptracker'); ?></option>
-                        <option value="all" <?php selected($display_mode, 'all'); ?>><?php esc_html_e('All ads', 'adwptracker'); ?></option>
+                    <select name="adwpt_display_mode" id="adwpt_display_mode" class="regular-text" style="padding: 8px; font-size: 14px;">
+                        <option value="random" <?php selected($display_mode, 'random'); ?>>🎲 <?php esc_html_e('Aléatoire (1 pub choisie au hasard)', 'adwptracker'); ?></option>
+                        <option value="all" <?php selected($display_mode, 'all'); ?>>📋 <?php esc_html_e('Toutes (affiche toutes les pubs)', 'adwptracker'); ?></option>
                     </select>
-                    <p class="description">
-                        <strong>Aléatoire :</strong> Affiche 1 seule pub choisie au hasard<br>
-                        <strong>Toutes :</strong> Affiche toutes les pubs (slider ou empilées)
-                    </p>
+                    <div style="margin-top: 12px; padding: 12px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-left: 4px solid #3b82f6; border-radius: 4px;">
+                        <div style="margin-bottom: 8px;">
+                            <strong style="color: #1e40af;">🎲 Aléatoire :</strong>
+                            <span style="color: #475569;">Affiche 1 seule annonce choisie au hasard à chaque chargement</span>
+                        </div>
+                        <div>
+                            <strong style="color: #1e40af;">📋 Toutes :</strong>
+                            <span style="color: #475569;">Affiche toutes les annonces (avec slider ou empilées)</span>
+                        </div>
+                    </div>
                 </td>
             </tr>
             
             <tr>
-                <th><label for="adwpt_slider_enabled"><?php esc_html_e('Slider (rotation)', 'adwptracker'); ?></label></th>
+                <th><label for="adwpt_slider_enabled">🎬 <?php esc_html_e('Slider (rotation)', 'adwptracker'); ?></label></th>
                 <td>
-                    <select name="adwpt_slider_enabled" id="adwpt_slider_enabled" class="regular-text">
-                        <option value="auto" <?php selected($slider_enabled, 'auto'); ?>><?php esc_html_e('Automatic', 'adwptracker'); ?></option>
-                        <option value="yes" <?php selected($slider_enabled, 'yes'); ?>><?php esc_html_e('Toujours activé', 'adwptracker'); ?></option>
-                        <option value="no" <?php selected($slider_enabled, 'no'); ?>><?php esc_html_e('Disabled', 'adwptracker'); ?></option>
+                    <select name="adwpt_slider_enabled" id="adwpt_slider_enabled" class="regular-text" style="padding: 8px; font-size: 14px;">
+                        <option value="auto" <?php selected($slider_enabled, 'auto'); ?>>⚙️ <?php esc_html_e('Automatique (slider si plusieurs pubs)', 'adwptracker'); ?></option>
+                        <option value="yes" <?php selected($slider_enabled, 'yes'); ?>>✅ <?php esc_html_e('Toujours activé (force le slider)', 'adwptracker'); ?></option>
+                        <option value="no" <?php selected($slider_enabled, 'no'); ?>>❌ <?php esc_html_e('Désactivé (pas de rotation)', 'adwptracker'); ?></option>
                     </select>
-                    <p class="description">
-                        <strong>Automatique :</strong> Slider activé si mode "All ads"<br>
-                        <strong>Toujours activé :</strong> Force le slider même en mode aléatoire<br>
-                        <strong>Désactivé :</strong> Pas de rotation (toutes les pubs visibles en même temps)
-                    </p>
+                    <div style="margin-top: 12px; padding: 12px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-left: 4px solid #10b981; border-radius: 4px;">
+                        <div style="margin-bottom: 8px;">
+                            <strong style="color: #065f46;">⚙️ Automatique :</strong>
+                            <span style="color: #475569;">Slider activé automatiquement si mode "Toutes"</span>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <strong style="color: #065f46;">✅ Toujours activé :</strong>
+                            <span style="color: #475569;">Force le slider même en mode aléatoire</span>
+                        </div>
+                        <div>
+                            <strong style="color: #065f46;">❌ Désactivé :</strong>
+                            <span style="color: #475569;">Pas de rotation, toutes les pubs visibles simultanément</span>
+                        </div>
+                    </div>
                 </td>
             </tr>
             
             <tr id="slider-speed-row">
-                <th><label for="adwpt_slider_speed"><?php esc_html_e('Vitesse du slider', 'adwptracker'); ?></label></th>
+                <th><label for="adwpt_slider_speed">⏱️ <?php esc_html_e('Vitesse du slider', 'adwptracker'); ?></label></th>
                 <td>
-                    <input type="number" name="adwpt_slider_speed" id="adwpt_slider_speed" value="<?php echo esc_attr($slider_speed); ?>" min="1" max="60" step="1" class="small-text">
-                    <span><?php esc_html_e('secondes', 'adwptracker'); ?></span>
-                    <p class="description"><?php esc_html_e('Durée d\'affichage de chaque pub (par défaut 5 secondes)', 'adwptracker'); ?></p>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="number" name="adwpt_slider_speed" id="adwpt_slider_speed" value="<?php echo esc_attr($slider_speed); ?>" min="1" max="60" step="1" class="small-text" style="padding: 8px; font-size: 14px; width: 80px;">
+                        <span style="font-weight: 600; color: #475569;"><?php esc_html_e('secondes', 'adwptracker'); ?></span>
+                        <span style="padding: 4px 12px; background: #fef3c7; color: #92400e; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                            <?php esc_html_e('Recommandé: 5s', 'adwptracker'); ?>
+                        </span>
+                    </div>
+                    <p class="description" style="margin-top: 10px; color: #64748b;">
+                        <?php esc_html_e('Temps d\'affichage de chaque annonce avant rotation (entre 1 et 60 secondes)', 'adwptracker'); ?>
+                    </p>
                 </td>
             </tr>
             
