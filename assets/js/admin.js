@@ -49,6 +49,7 @@ jQuery(document).ready(function($) {
         
         var button = $(this);
         var inputField = $('#adwpt_video_url');
+        var videoTypeField = $('#adwpt_video_type');
         
         // Create media frame for video
         var mediaUploader = wp.media({
@@ -66,6 +67,11 @@ jQuery(document).ready(function($) {
         mediaUploader.on('select', function() {
             var attachment = mediaUploader.state().get('selection').first().toJSON();
             inputField.val(attachment.url);
+            
+            // Automatically set video type to MP4
+            if (videoTypeField.length) {
+                videoTypeField.val('mp4').trigger('change');
+            }
             
             // Show preview
             var preview = button.siblings('.adwpt-video-preview');

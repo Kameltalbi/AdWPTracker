@@ -88,7 +88,6 @@ class ADWPT_Ad {
         $new_columns = [];
         $new_columns['cb'] = $columns['cb'];
         $new_columns['ad_name'] = __('Ad Name', 'adwptracker');
-        $new_columns['shortcode'] = __('Shortcode', 'adwptracker');
         $new_columns['type'] = __('Type', 'adwptracker');
         $new_columns['zone'] = __('Zone', 'adwptracker');
         $new_columns['status'] = __('Status', 'adwptracker');
@@ -113,67 +112,6 @@ class ADWPT_Ad {
                 echo '<span class="edit"><a href="' . esc_url($edit_link) . '">' . __('Edit', 'adwptracker') . '</a> | </span>';
                 echo '<span class="trash"><a href="' . get_delete_post_link($post_id) . '">' . __('Trash', 'adwptracker') . '</a></span>';
                 echo '</div>';
-                break;
-            
-            case 'shortcode':
-                // Add JavaScript only once
-                static $script_added = false;
-                if (!$script_added) {
-                    ?>
-                    <script>
-                    function copyAdShortcode(id) {
-                        var code = document.getElementById('ad-shortcode-' + id);
-                        var text = code.textContent;
-                        
-                        // Use modern Clipboard API with fallback
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                            navigator.clipboard.writeText(text).then(function() {
-                                showAdCopiedMessage(id);
-                            }).catch(function() {
-                                fallbackAdCopy(text, id);
-                            });
-                        } else {
-                            fallbackAdCopy(text, id);
-                        }
-                    }
-                    
-                    function fallbackAdCopy(text, id) {
-                        var input = document.createElement('input');
-                        input.value = text;
-                        input.style.position = 'fixed';
-                        input.style.opacity = '0';
-                        document.body.appendChild(input);
-                        input.select();
-                        try {
-                            document.execCommand('copy');
-                            showAdCopiedMessage(id);
-                        } catch (err) {
-                            console.error('Copy failed:', err);
-                        }
-                        document.body.removeChild(input);
-                    }
-                    
-                    function showAdCopiedMessage(id) {
-                        var copied = document.getElementById('ad-copied-' + id);
-                        copied.style.display = 'inline';
-                        setTimeout(function() {
-                            copied.style.display = 'none';
-                        }, 2000);
-                    }
-                    </script>
-                    <?php
-                    $script_added = true;
-                }
-                
-                $shortcode = '[adwptracker_ad id="' . $post_id . '"]';
-                ?>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <code id="ad-shortcode-<?php echo esc_attr($post_id); ?>" style="background: #1f2937; color: #10b981; padding: 6px 10px; border-radius: 4px; font-size: 12px; font-family: monospace; cursor: pointer;" onclick="copyAdShortcode(<?php echo esc_js($post_id); ?>)" title="Cliquer pour copier">
-                        <?php echo esc_html($shortcode); ?>
-                    </code>
-                    <span id="ad-copied-<?php echo esc_attr($post_id); ?>" style="display: none; color: #10b981; font-size: 12px;">✓ Copié</span>
-                </div>
-                <?php
                 break;
             
             case 'type':

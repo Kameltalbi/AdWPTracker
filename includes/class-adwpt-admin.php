@@ -290,6 +290,16 @@ class ADWPT_Admin {
             [$this, 'render_stats_page']
         );
         
+        // Liste complète (Ads & Zones avec shortcodes)
+        add_submenu_page(
+            'adwptracker',
+            __('Liste Complète', 'adwptracker'),
+            __('📋 Liste Complète', 'adwptracker'),
+            'manage_options',
+            'adwptracker-liste',
+            [$this, 'render_liste_page']
+        );
+        
         // Settings
         add_submenu_page(
             'adwptracker',
@@ -1245,6 +1255,16 @@ if (function_exists('adwptracker_display_zone')) {<br>
             </div>
         </div>
         <?php
+    }
+    
+    /**
+     * Render liste complète page
+     */
+    public function render_liste_page() {
+        if (!class_exists('ADWPT_Liste')) {
+            require_once ADWPT_PLUGIN_DIR . 'includes/class-adwpt-liste.php';
+        }
+        ADWPT_Liste::render_page();
     }
     
     /**

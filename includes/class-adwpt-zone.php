@@ -180,7 +180,14 @@ class ADWPT_Zone {
                     ],
                     'fields' => 'ids',
                 ]);
-                echo '<strong>' . count($ads) . '</strong>';
+                
+                // Filter out inactive ads
+                $active_ads = array_filter($ads, function($ad_id) {
+                    $status = get_post_meta($ad_id, '_adwpt_status', true);
+                    return empty($status) || $status === 'active';
+                });
+                
+                echo '<strong>' . count($active_ads) . '</strong>';
                 break;
         }
     }
