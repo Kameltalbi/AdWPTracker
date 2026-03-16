@@ -27,8 +27,12 @@
         // HIDE ON DESKTOP
         if (isDesktop()) {
             footer.style.display = 'none !important';
+            document.body.classList.remove('adwptracker-has-sticky');
             return;
         }
+        
+        // Add class to body for padding
+        document.body.classList.add('adwptracker-has-sticky');
         
         // Force container styles on mobile/tablet
         footer.style.cssText = `
@@ -39,13 +43,14 @@
             width: 100vw !important;
             max-width: 100vw !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 0 0 env(safe-area-inset-bottom, 0) 0 !important;
             border: none !important;
             background: white !important;
             z-index: 999999 !important;
             box-sizing: border-box !important;
-            overflow: hidden !important;
+            overflow: visible !important;
             display: block !important;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1) !important;
         `;
         
         // Force image styles
@@ -147,6 +152,9 @@
                 e.preventDefault();
                 e.stopPropagation();
                 footer.style.display = 'none';
+                
+                // Remove body class
+                document.body.classList.remove('adwptracker-has-sticky');
                 
                 // Store in sessionStorage to not show again during session
                 sessionStorage.setItem('adwptracker_sticky_closed', '1');
