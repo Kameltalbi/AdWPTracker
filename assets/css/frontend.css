@@ -1,0 +1,538 @@
+/**
+ * AdWPtracker Frontend Styles
+ * Fully responsive and mobile-optimized
+ */
+
+/* Zone Container */
+.adwptracker-zone {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+    clear: both;
+    overflow: visible;
+    display: block;
+}
+
+/* Individual Ad Container */
+.adwptracker-ad {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 20px;
+    padding: 0;
+    box-sizing: border-box;
+    display: block;
+    text-align: center;
+    overflow: visible;
+}
+
+.adwptracker-ad:last-child {
+    margin-bottom: 0;
+}
+
+/* Image Ads - MOBILE FIRST APPROACH */
+.adwptracker-ad img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    object-fit: contain;
+}
+
+/* Force responsive on all contexts */
+.adwptracker-ad > a > img,
+.adwptracker-ad a img,
+.adwptracker-link img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+/* Link Wrapper */
+.adwptracker-link {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+    box-sizing: border-box;
+}
+
+.adwptracker-link:hover {
+    opacity: 0.9;
+}
+
+/* HTML Content Wrapper */
+.adwptracker-html-wrapper {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.adwptracker-html-content {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Ensure embedded content is responsive */
+.adwptracker-html-content *,
+.adwptracker-html-content img,
+.adwptracker-html-content iframe,
+.adwptracker-html-content video {
+    max-width: 100%;
+    height: auto;
+    box-sizing: border-box;
+}
+
+/* Mobile Specific Styles - CRITICAL */
+@media screen and (max-width: 768px) {
+    .adwptracker-zone {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        margin: 0 auto;
+    }
+    
+    .adwptracker-ad {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 15px;
+        padding: 0;
+    }
+    
+    .adwptracker-ad img,
+    .adwptracker-ad > a > img,
+    .adwptracker-link > img {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+}
+
+/* Small Mobile - Extra protection */
+@media screen and (max-width: 480px) {
+    .adwptracker-zone {
+        width: 100%;
+        padding: 0;
+        margin: 0 auto;
+    }
+    
+    .adwptracker-ad {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .adwptracker-ad img {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* Tablet Styles */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .adwptracker-zone {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+/* Desktop Styles */
+@media screen and (min-width: 1025px) {
+    .adwptracker-zone {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+/* Override any theme styles that might break responsive */
+.adwptracker-ad img[width],
+.adwptracker-ad img[height] {
+    width: 100%;
+    height: auto;
+}
+
+/* Loading State (Optional) */
+.adwptracker-ad.loading {
+    min-height: 100px;
+    background: #f5f5f5;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Accessibility */
+.adwptracker-link:focus {
+    outline: 2px solid #4285f4;
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .adwptracker-zone,
+    .adwptracker-ad {
+        display: none;
+    }
+}
+
+/* RTL Support */
+[dir="rtl"] .adwptracker-zone {
+    direction: rtl;
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .adwptracker-ad img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+    .adwptracker-ad.loading {
+        background: #2d2d2d;
+    }
+}
+
+/* Clearfix for floated content */
+.adwptracker-zone::after,
+.adwptracker-ad::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Prevent any fixed width from theme */
+.adwptracker-zone,
+.adwptracker-ad,
+.adwptracker-link {
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-overflow-scrolling: touch) {
+    .adwptracker-ad img {
+        width: 100%;
+        height: auto;
+    }
+}
+
+
+/* ========================================
+   STICKY ADS - MOBILE FIRST
+   ======================================== */
+
+/* Sticky Top: Actif sur tout (mobile + desktop) */
+.adwptracker-ad.adwpt-sticky-top {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    z-index: 99999 !important;
+    margin: 0 !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+    background: white !important;
+}
+
+/* Sticky Bottom: Normal sur desktop, sticky sur mobile */
+.adwptracker-ad.adwpt-sticky-bottom {
+    position: relative !important;
+}
+
+/* Sticky Bottom devient actif sur mobile (< 768px) */
+@media screen and (max-width: 1023px) {
+    .adwptracker-ad.adwpt-sticky-bottom {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        z-index: 99999 !important;
+        margin: 0 !important;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.2) !important;
+        background: white !important;
+    }
+    
+    /* Ajouter padding au body pour éviter que contenu soit caché */
+    body {
+        padding-bottom: 90px !important;
+    }
+}
+
+/* ========================================
+   DEVICE VISIBILITY
+   ======================================== */
+
+/* Hide on mobile (screens < 768px) */
+@media (max-width: 1023px) {
+    .adwpt-hide-mobile {
+        display: none !important;
+    }
+}
+
+/* Hide on desktop (screens >= 768px) */
+@media (min-width: 768px) {
+    .adwpt-hide-desktop {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   STICKY AD ENHANCEMENTS
+   ======================================== */
+
+/* Close button for sticky ads (optional future feature) */
+.adwpt-sticky-close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    z-index: 100000;
+}
+
+.adwpt-sticky-close:hover {
+    background: rgba(0,0,0,0.9);
+}
+
+/* Ensure sticky images are responsive */
+.adwptracker-ad.adwpt-sticky-top img,
+.adwptracker-ad.adwpt-sticky-bottom img {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    display: block !important;
+}
+
+/* ========================================
+   STICKY FOOTER MOBILE (Professional) - FIXED
+   ======================================== */
+
+/* DESKTOP : Caché par défaut */
+.adwptracker-sticky-footer-mobile {
+    display: none !important;
+}
+
+/* MOBILE + TABLETTE : Visible et sticky (<1024px) */
+@media screen and (max-width: 1023px) {
+    .adwptracker-sticky-footer-mobile {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        background: #ffffff !important;
+        border-top: 1px solid #ddd !important;
+        z-index: 99999 !important;
+        padding: 8px 0 !important;
+        padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.15) !important;
+        animation: slideUp 0.3s ease-out;
+        box-sizing: border-box !important;
+        min-height: 60px !important;
+        max-height: 80px !important;
+        overflow: hidden !important;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Images et vidéos responsives */
+.adwptracker-sticky-footer-mobile img,
+.adwptracker-sticky-footer-mobile video {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+    box-sizing: border-box !important;
+    border: none !important;
+}
+
+/* Conteneur de contenu */
+.adwptracker-sticky-footer-mobile .adwptracker-sticky-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Lien wrapper */
+.adwptracker-sticky-footer-mobile .adwptracker-link {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-decoration: none !important;
+}
+
+/* Bouton fermer */
+.adwptracker-sticky-footer-mobile .adwptracker-sticky-close {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    line-height: 24px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 100000;
+    flex-shrink: 0 !important;
+}
+
+.adwptracker-sticky-footer-mobile .adwptracker-sticky-close:hover {
+    background: #f44336;
+    color: white;
+}
+
+/* Hidden state (when closed) */
+.adwptracker-sticky-footer-mobile.adwptracker-hidden {
+    display: none !important;
+}
+
+/* Override avec ID pour forcer les règles */
+@media screen and (max-width: 1023px) {
+    #adwptracker-sticky-footer,
+    #adwptracker-sticky-footer * {
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+    }
+    
+    #adwptracker-sticky-footer img {
+        width: 100% !important;
+        max-width: 100vw !important;
+        height: auto !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        object-fit: contain !important;
+    }
+}
+
+/* ========================================
+   RESPONSIVE IMAGES - ALL ZONES
+   Force toutes les images à être responsives
+   ======================================== */
+
+/* Container ads responsive */
+.adwptracker-ad {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Force all images to be responsive */
+.adwptracker-ad img {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    object-fit: contain !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* Links wrapper responsive */
+.adwptracker-ad a {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Mobile specific - extra force */
+@media screen and (max-width: 1023px) {
+    .adwptracker-ad,
+    .adwptracker-ad * {
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+    }
+    
+    .adwptracker-ad img {
+        width: 100% !important;
+        max-width: 100vw !important;
+        height: auto !important;
+        object-fit: contain !important;
+    }
+}
+
+/* HTML content responsive */
+.adwptracker-html-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+.adwptracker-html-content img {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Video responsive */
+.adwptracker-ad video,
+.adwptracker-ad iframe {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+}

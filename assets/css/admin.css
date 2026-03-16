@@ -1,0 +1,518 @@
+/**
+ * AdWPtracker Admin Styles - Modern Design v1.1.0
+ */
+
+/* ===========================
+   MODERN DESIGN VARIABLES
+   =========================== */
+:root {
+    --adwpt-primary: #2563eb;
+    --adwpt-primary-dark: #1d4ed8;
+    --adwpt-success: #10b981;
+    --adwpt-warning: #f59e0b;
+    --adwpt-danger: #ef4444;
+    --adwpt-gray-50: #f9fafb;
+    --adwpt-gray-100: #f3f4f6;
+    --adwpt-gray-200: #e5e7eb;
+    --adwpt-gray-600: #4b5563;
+    --adwpt-gray-700: #374151;
+    --adwpt-gray-900: #111827;
+}
+
+/* ===========================
+   BADGES - MODERN
+   =========================== */
+.adwpt-badge,
+.adwpt-badge-active,
+.adwpt-badge-inactive {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.adwpt-badge-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.adwpt-badge-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.adwpt-type-badge {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ===========================
+   DASHBOARD WIDGETS - CARDS
+   =========================== */
+.adwpt-dashboard-widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.adwpt-widget {
+    background: white;
+    padding: 24px;
+    border: 1px solid var(--adwpt-gray-200);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.adwpt-widget:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.adwpt-widget h3 {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: var(--adwpt-gray-600);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.adwpt-big-number {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--adwpt-gray-900);
+    line-height: 1;
+}
+
+/* ===========================
+   FORM TABLES - MODERN
+   =========================== */
+.form-table {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.form-table th {
+    width: 220px;
+    font-weight: 600;
+    color: var(--adwpt-gray-700);
+    padding: 16px 12px;
+}
+
+.form-table td {
+    padding: 16px 12px;
+}
+
+.form-table td .description {
+    margin-top: 8px;
+    color: var(--adwpt-gray-600);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.form-table input[type="text"],
+.form-table input[type="number"],
+.form-table input[type="url"],
+.form-table input[type="date"],
+.form-table select,
+.form-table textarea {
+    border: 1px solid var(--adwpt-gray-200);
+    border-radius: 6px;
+    padding: 10px 14px;
+    transition: all 0.2s;
+}
+
+.form-table input:focus,
+.form-table select:focus,
+.form-table textarea:focus {
+    border-color: var(--adwpt-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+/* ===========================
+   SHORTCODE DISPLAY - MODERN
+   =========================== */
+.column-shortcode code {
+    display: inline-block;
+    padding: 8px 14px;
+    background: var(--adwpt-gray-900);
+    color: #10b981;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    cursor: pointer;
+    user-select: all;
+    transition: all 0.2s;
+}
+
+.column-shortcode code:hover {
+    background: #000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ===========================
+   QUICK LINKS - MODERN
+   =========================== */
+.adwpt-quick-links,
+.adwpt-usage {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 30px;
+    margin: 20px 0;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.adwpt-quick-links h2,
+.adwpt-usage h2 {
+    margin-top: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+}
+
+.adwpt-quick-links .button {
+    background: white;
+    color: var(--adwpt-primary);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-right: 10px;
+    transition: all 0.2s;
+}
+
+.adwpt-quick-links .button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.adwpt-usage code {
+    display: block;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    margin: 15px 0;
+    border-radius: 8px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    color: #d1fae5;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===========================
+   TABLES - MODERN
+   =========================== */
+.wp-list-table.widefat {
+    border: 1px solid var(--adwpt-gray-200);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.wp-list-table.widefat thead {
+    background: var(--adwpt-gray-50);
+}
+
+.wp-list-table.widefat th {
+    font-weight: 600;
+    color: var(--adwpt-gray-700);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 14px 10px;
+}
+
+.wp-list-table.widefat tbody tr {
+    transition: background 0.2s;
+}
+
+.wp-list-table.widefat tbody tr:hover {
+    background: var(--adwpt-gray-50);
+}
+
+.wp-list-table.widefat td strong {
+    color: var(--adwpt-primary);
+    font-weight: 600;
+}
+
+/* ===========================
+   IMAGE PREVIEW - MODERN
+   =========================== */
+.adwpt-image-field img,
+.adwpt-html-field img {
+    max-width: 300px;
+    height: auto;
+    margin-top: 15px;
+    border: 2px solid var(--adwpt-gray-200);
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ===========================
+   MESSAGES - MODERN
+   =========================== */
+.adwpt-message {
+    padding: 16px 20px;
+    margin: 15px 0;
+    border-left: 4px solid;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.adwpt-message.success {
+    background: #ecfdf5;
+    border-color: var(--adwpt-success);
+    color: #065f46;
+}
+
+.adwpt-message.error {
+    background: #fef2f2;
+    border-color: var(--adwpt-danger);
+    color: #991b1b;
+}
+
+/* ===========================
+   LOADING - MODERN
+   =========================== */
+.adwpt-loading {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--adwpt-gray-200);
+    border-radius: 50%;
+    border-top-color: var(--adwpt-primary);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===========================
+   TOOLTIPS - MODERN
+   =========================== */
+.adwpt-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 16px;
+    background: var(--adwpt-gray-900);
+    color: white;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.adwpt-tooltip:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--adwpt-gray-900);
+    z-index: 1000;
+}
+
+/* ===========================
+   COLUMN WIDTHS
+   =========================== */
+.column-shortcode { width: 280px; }
+.column-slug { width: 150px; }
+.column-status { width: 100px; }
+.column-ads_count { width: 100px; }
+.column-type { width: 80px; }
+.column-zone { width: 150px; }
+.column-impressions,
+.column-clicks,
+.column-ctr {
+    width: 100px;
+    text-align: center;
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media screen and (max-width: 782px) {
+    .adwpt-dashboard-widgets {
+        grid-template-columns: 1fr;
+    }
+    
+    .column-shortcode code {
+        font-size: 10px;
+        padding: 6px 10px;
+    }
+    
+    .adwpt-quick-links .button {
+        display: block;
+        margin: 8px 0;
+        width: 100%;
+    }
+}
+
+/* ===========================
+   PUBLISH BOX BUTTON - PRIMARY
+   =========================== */
+#publishing-action #publish,
+#publishing-action input[type="submit"] {
+    background: var(--adwpt-primary);
+    border-color: var(--adwpt-primary-dark);
+    text-shadow: none;
+    box-shadow: none;
+    font-weight: 600;
+}
+
+#publishing-action #publish:hover,
+#publishing-action input[type="submit"]:hover {
+    background: var(--adwpt-primary-dark);
+    border-color: var(--adwpt-primary-dark);
+}
+
+/* ========================================
+   ADMIN TABLES - Optimized Columns
+   ======================================== */
+
+/* Ad List Table Columns - Professional Layout */
+.wp-list-table.widefat .column-ad_name {
+    width: 22% !important;
+}
+
+.wp-list-table.widefat .column-type {
+    width: 8% !important;
+    text-align: center;
+}
+
+.wp-list-table.widefat .column-zone {
+    width: 15% !important;
+}
+
+.wp-list-table.widefat .column-status {
+    width: 10% !important;
+    text-align: center;
+}
+
+.wp-list-table.widefat .column-impressions {
+    width: 12% !important;
+    text-align: right;
+    font-weight: bold;
+}
+
+.wp-list-table.widefat .column-clicks {
+    width: 10% !important;
+    text-align: right;
+    font-weight: bold;
+}
+
+.wp-list-table.widefat .column-ctr {
+    width: 9% !important;
+    text-align: right;
+    font-weight: bold;
+    color: #0073aa;
+}
+
+.wp-list-table.widefat .column-date {
+    width: 14% !important;
+}
+
+/* Better mobile responsiveness */
+@media screen and (max-width: 782px) {
+    .wp-list-table.widefat .column-impressions,
+    .wp-list-table.widefat .column-clicks,
+    .wp-list-table.widefat .column-ctr {
+        display: table-cell !important;
+        text-align: center;
+    }
+}
+
+/* Zone List Table Columns */
+.wp-list-table.widefat .column-zone_name {
+    width: 30% !important;
+}
+
+.wp-list-table.widefat .column-shortcode {
+    width: 35% !important;
+}
+
+.wp-list-table.widefat .column-ads_count {
+    width: 10% !important;
+    text-align: center;
+    font-weight: bold;
+}
+
+.wp-list-table.widefat .column-shortcode code {
+    background: #f0f0f1;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.wp-list-table.widefat .column-shortcode code:hover {
+    background: #0073aa;
+    color: white;
+}
+
+/* ========================================
+   FIX DOUBLE BADGES - Hide WordPress Defaults
+   ======================================== */
+
+/* Hide WordPress default post state badges in custom columns */
+.wp-list-table.widefat tbody td.column-type .post-state,
+.wp-list-table.widefat tbody td.column-status .post-state,
+.wp-list-table.widefat tbody td.column-type .dashicons,
+.wp-list-table.widefat tbody td.column-status .dashicons {
+    display: none !important;
+}
+
+/* Hide any duplicate status/type text */
+.wp-list-table.widefat tbody td.column-type > span:not(.adwpt-type-badge),
+.wp-list-table.widefat tbody td.column-status > span:not([style*="background"]) {
+    display: none !important;
+}
+
+/* Make our custom badges stand out */
+.adwpt-type-badge {
+    display: inline-block !important;
+    padding: 4px 10px;
+    background: #f0f0f1;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Type badges with colors */
+.column-type .adwpt-type-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+/* Ensure only ONE element per column */
+.wp-list-table.widefat tbody td.column-type,
+.wp-list-table.widefat tbody td.column-status {
+    overflow: hidden;
+}
+
+/* Remove any WordPress injected content */
+.wp-list-table.widefat tbody td.column-type::after,
+.wp-list-table.widefat tbody td.column-status::after {
+    content: none !important;
+}

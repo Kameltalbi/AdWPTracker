@@ -1,0 +1,253 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the AdWPtracker package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: AdWPtracker 3.3.9\n"
+"Report-Msgid-Bugs-To: support@adwptracker.com\n"
+"POT-Creation-Date: 2025-11-18 19:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: includes/class-adwpt-admin.php
+msgid "Dashboard"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Statistics"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Ads"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Zones"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Settings"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Documentation"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Support"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "New Ad"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "New Zone"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Ad Type"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Image"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Text"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Video"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "HTML/Code"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Image URL"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Upload"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "HTML Code"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Title"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Content"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Video Type"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Video URL"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Destination URL"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Link Target"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Zone"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Status"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Start Date"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "End Date"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Show on Mobile"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Show on Desktop"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Enable Sticky"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Sticky Position"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Top"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Bottom"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Active"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Inactive"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Zone Format"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Select a zone"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Impressions"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Clicks"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "CTR"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Export CSV"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Detailed Statistics"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Statistics by Ad"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "No statistics available yet"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Statistics will appear once your ads start showing"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Create Zone"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Create Ad"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "New Tab"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Same Window"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Device Targeting"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Mobile Sticky Footer"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Quick Start Guide"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Available Formats"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Today"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Total"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Welcome"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Overview"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "ID"
+msgstr ""
+
+#: includes/class-adwpt-admin.php
+msgid "Ad"
+msgstr ""

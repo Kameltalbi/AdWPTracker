@@ -1,0 +1,442 @@
+# French (France) translation for AdWPtracker.
+# Copyright (C) 2025 Kamel Talbi
+# This file is distributed under the same license as the AdWPtracker package.
+# Kamel Talbi <kamel@adwptracker.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: AdWPtracker 3.3.9\n"
+"Report-Msgid-Bugs-To: support@adwptracker.com\n"
+"POT-Creation-Date: 2025-11-18 19:00+0000\n"
+"PO-Revision-Date: 2025-11-18 19:00+0000\n"
+"Last-Translator: Kamel Talbi <kamel@adwptracker.com>\n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: includes/class-adwpt-admin.php
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#: includes/class-adwpt-admin.php
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: includes/class-adwpt-admin.php
+msgid "Ads"
+msgstr "Annonces"
+
+#: includes/class-adwpt-admin.php
+msgid "Zones"
+msgstr "Zones"
+
+#: includes/class-adwpt-admin.php
+msgid "Settings"
+msgstr "Paramètres"
+
+#: includes/class-adwpt-admin.php
+msgid "Documentation"
+msgstr "Documentation"
+
+#: includes/class-adwpt-admin.php
+msgid "Support"
+msgstr "Support"
+
+#: includes/class-adwpt-admin.php
+msgid "New Ad"
+msgstr "Nouvelle annonce"
+
+#: includes/class-adwpt-admin.php
+msgid "New Zone"
+msgstr "Nouvelle zone"
+
+#: includes/class-adwpt-admin.php
+msgid "Ad Type"
+msgstr "Type d'annonce"
+
+#: includes/class-adwpt-admin.php
+msgid "Image"
+msgstr "Image"
+
+#: includes/class-adwpt-admin.php
+msgid "Text"
+msgstr "Texte"
+
+#: includes/class-adwpt-admin.php
+msgid "Video"
+msgstr "Vidéo"
+
+#: includes/class-adwpt-admin.php
+msgid "HTML/Code"
+msgstr "HTML/Code"
+
+#: includes/class-adwpt-admin.php
+msgid "Image URL"
+msgstr "URL de l'image"
+
+#: includes/class-adwpt-admin.php
+msgid "Upload"
+msgstr "Télécharger"
+
+#: includes/class-adwpt-admin.php
+msgid "HTML Code"
+msgstr "Code HTML"
+
+#: includes/class-adwpt-admin.php
+msgid "Title"
+msgstr "Titre"
+
+#: includes/class-adwpt-admin.php
+msgid "Content"
+msgstr "Contenu"
+
+#: includes/class-adwpt-admin.php
+msgid "Video Type"
+msgstr "Type de vidéo"
+
+#: includes/class-adwpt-admin.php
+msgid "Video URL"
+msgstr "URL vidéo"
+
+#: includes/class-adwpt-admin.php
+msgid "Destination URL"
+msgstr "URL de destination"
+
+#: includes/class-adwpt-admin.php
+msgid "Link Target"
+msgstr "Cible du lien"
+
+#: includes/class-adwpt-admin.php
+msgid "Zone"
+msgstr "Zone"
+
+#: includes/class-adwpt-admin.php
+msgid "Status"
+msgstr "Statut"
+
+#: includes/class-adwpt-admin.php
+msgid "Start Date"
+msgstr "Date de début"
+
+#: includes/class-adwpt-admin.php
+msgid "End Date"
+msgstr "Date de fin"
+
+#: includes/class-adwpt-admin.php
+msgid "Show on Mobile"
+msgstr "Afficher sur mobile"
+
+#: includes/class-adwpt-admin.php
+msgid "Show on Desktop"
+msgstr "Afficher sur desktop"
+
+#: includes/class-adwpt-admin.php
+msgid "Enable Sticky"
+msgstr "Activer sticky"
+
+#: includes/class-adwpt-admin.php
+msgid "Sticky Position"
+msgstr "Position sticky"
+
+#: includes/class-adwpt-admin.php
+msgid "Top"
+msgstr "En haut"
+
+#: includes/class-adwpt-admin.php
+msgid "Bottom"
+msgstr "En bas"
+
+#: includes/class-adwpt-admin.php
+msgid "Active"
+msgstr "Active"
+
+#: includes/class-adwpt-admin.php
+msgid "Inactive"
+msgstr "Inactive"
+
+#: includes/class-adwpt-admin.php
+msgid "Zone Format"
+msgstr "Format de la zone"
+
+#: includes/class-adwpt-admin.php
+msgid "Select a zone"
+msgstr "Sélectionnez une zone"
+
+#: includes/class-adwpt-admin.php
+msgid "Impressions"
+msgstr "Impressions"
+
+#: includes/class-adwpt-admin.php
+msgid "Clicks"
+msgstr "Clics"
+
+#: includes/class-adwpt-admin.php
+msgid "CTR"
+msgstr "CTR"
+
+#: includes/class-adwpt-admin.php
+msgid "Export CSV"
+msgstr "Exporter CSV"
+
+#: includes/class-adwpt-admin.php
+msgid "Detailed Statistics"
+msgstr "Statistiques détaillées"
+
+#: includes/class-adwpt-admin.php
+msgid "Statistics by Ad"
+msgstr "Statistiques par annonce"
+
+#: includes/class-adwpt-admin.php
+msgid "No statistics available yet"
+msgstr "Aucune statistique disponible pour le moment"
+
+#: includes/class-adwpt-admin.php
+msgid "Statistics will appear once your ads start showing"
+msgstr "Les statistiques apparaîtront dès que vos annonces commenceront à être affichées"
+
+#: includes/class-adwpt-admin.php
+msgid "Create Zone"
+msgstr "Créer une zone"
+
+#: includes/class-adwpt-admin.php
+msgid "Create Ad"
+msgstr "Créer une annonce"
+
+#: includes/class-adwpt-admin.php
+msgid "New Tab"
+msgstr "Nouvel onglet"
+
+#: includes/class-adwpt-admin.php
+msgid "Same Window"
+msgstr "Même fenêtre"
+
+#: includes/class-adwpt-admin.php
+msgid "Device Targeting"
+msgstr "Ciblage appareil"
+
+#: includes/class-adwpt-admin.php
+msgid "Mobile Sticky Footer"
+msgstr "Sticky Footer Mobile"
+
+#: includes/class-adwpt-admin.php
+msgid "Quick Start Guide"
+msgstr "Guide de démarrage rapide"
+
+#: includes/class-adwpt-admin.php
+msgid "Available Formats"
+msgstr "Formats disponibles"
+
+#: includes/class-adwpt-admin.php
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#: includes/class-adwpt-admin.php
+msgid "Total"
+msgstr "Total"
+
+#: includes/class-adwpt-admin.php
+msgid "Welcome"
+msgstr "Bienvenue"
+
+#: includes/class-adwpt-admin.php
+msgid "Overview"
+msgstr "Vue d'ensemble"
+
+#: includes/class-adwpt-admin.php
+msgid "ID"
+msgstr "ID"
+
+#: includes/class-adwpt-admin.php
+msgid "Ad"
+msgstr "Annonce"
+
+#: includes/class-adwpt-admin.php
+msgid "Choose advertising content type"
+msgstr "Choisir le type de contenu publicitaire"
+
+#: includes/class-adwpt-admin.php
+msgid "HTML/JavaScript code (e.g., Google AdSense)"
+msgstr "Code HTML/JavaScript (ex: Google Adsense)"
+
+#: includes/class-adwpt-admin.php
+msgid "Recommended: 1200×200px for banner, WebP or JPG format"
+msgstr "Recommandé: 1200×200px pour bannière, format WebP ou JPG"
+
+#: includes/class-adwpt-admin.php
+msgid "Your ad text"
+msgstr "Texte de votre annonce"
+
+#: includes/class-adwpt-admin.php
+msgid "Descriptive ad text"
+msgstr "Texte descriptif de l'annonce"
+
+#: includes/class-adwpt-admin.php
+msgid "Leave empty for always active"
+msgstr "Laisser vide pour toujours actif"
+
+#: includes/class-adwpt-admin.php
+msgid "Choose which devices to display this ad on"
+msgstr "Choisir sur quels appareils afficher cette annonce"
+
+#: includes/class-adwpt-admin.php
+msgid "Device Display"
+msgstr "Affichage par appareil"
+
+#: includes/class-adwpt-admin.php
+msgid "Need Help?"
+msgstr "Besoin d'aide ?"
+
+#: includes/class-adwpt-admin.php
+msgid "Display duration for each ad (default 5 seconds)"
+msgstr "Durée d'affichage de chaque pub (par défaut 5 secondes)"
+
+#: includes/class-adwpt-admin.php
+msgid "Zone Shortcode"
+msgstr "Shortcode de la zone"
+
+#: includes/class-adwpt-admin.php
+msgid "Display Mode"
+msgstr "Mode d'affichage"
+
+#: includes/class-adwpt-admin.php
+msgid "Rotation Speed"
+msgstr "Vitesse de rotation"
+
+#: includes/class-adwpt-admin.php
+msgid "Advanced Options"
+msgstr "Options avancées"
+
+#: includes/class-adwpt-admin.php
+msgid "seconds"
+msgstr "secondes"
+
+#: includes/class-adwpt-admin.php
+msgid "Usage"
+msgstr "Utilisation"
+
+#: includes/class-adwpt-admin.php
+msgid "Features"
+msgstr "Fonctionnalités"
+
+#: includes/class-adwpt-admin.php
+msgid "Information"
+msgstr "Informations"
+
+#: includes/class-adwpt-admin.php
+msgid "Desktop Only"
+msgstr "Desktop uniquement"
+
+#: includes/class-adwpt-admin.php
+msgid "Mobile Only"
+msgstr "Mobile uniquement"
+
+#: includes/class-adwpt-admin.php
+msgid "Mobile + Tablet"
+msgstr "Mobile + Tablette"
+
+#: includes/class-adwpt-admin.php
+msgid "Control where your ad appears"
+msgstr "Contrôlez où votre annonce apparaît"
+
+#: includes/class-adwpt-admin.php
+msgid "Copy this shortcode to display this zone"
+msgstr "Copiez ce shortcode pour afficher cette zone"
+
+#: includes/class-adwpt-admin.php
+msgid "The above settings will be applied automatically"
+msgstr "Les paramètres ci-dessus seront appliqués automatiquement"
+
+#: includes/class-adwpt-admin.php
+msgid "Selected format"
+msgstr "Format sélectionné"
+
+#: includes/class-adwpt-admin.php
+msgid "Ideal for mobile sticky footer"
+msgstr "Idéal pour sticky footer mobile"
+
+#: includes/class-adwpt-admin.php
+msgid "Standard desktop header"
+msgstr "Standard desktop header"
+
+#: includes/class-adwpt-admin.php
+msgid "Choose a standard format"
+msgstr "Choisir un format standard"
+
+#: includes/class-adwpt-admin.php
+msgid "Recommended"
+msgstr "Recommandé"
+
+#: includes/class-adwpt-admin.php
+msgid "Format"
+msgstr "Format"
+
+#: includes/class-adwpt-admin.php
+msgid "Dimensions"
+msgstr "Dimensions"
+
+#: includes/class-adwpt-admin.php
+msgid "Save"
+msgstr "Enregistrer"
+
+#: includes/class-adwpt-admin.php
+msgid "Publish"
+msgstr "Publier"
+
+#: includes/class-adwpt-admin.php
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: includes/class-adwpt-admin.php
+msgid "No ads found"
+msgstr "Aucune annonce trouvée"
+
+#: includes/class-adwpt-admin.php
+msgid "No zones found"
+msgstr "Aucune zone trouvée"
+
+#: includes/class-adwpt-admin.php
+msgid "Ad Settings"
+msgstr "Paramètres de l'annonce"
+
+#: includes/class-adwpt-admin.php
+msgid "Zone Settings"
+msgstr "Paramètres de la zone"
+
+#: includes/class-adwpt-admin.php
+msgid "Random (1 ad)"
+msgstr "Aléatoire (1 pub)"
+
+#: includes/class-adwpt-admin.php
+msgid "Automatic"
+msgstr "Automatique"
+
+#: includes/class-adwpt-admin.php
+msgid "Slider/Rotation"
+msgstr "Slider/Rotation"
+
+#: includes/class-adwpt-admin.php
+msgid "All ads"
+msgstr "Toutes les pubs"
+
+#: includes/class-adwpt-admin.php
+msgid "Published"
+msgstr "Publié"
+
+#: includes/class-adwpt-admin.php
+msgid "Draft"
+msgstr "Brouillon"
+
+#: includes/class-adwpt-admin.php
+msgid "Enabled"
+msgstr "Activé"
+
+#: includes/class-adwpt-admin.php
+msgid "Disabled"
+msgstr "Désactivé"
+
+#: includes/class-adwpt-admin.php
+msgid "Click Rate"
+msgstr "Taux de clic"
