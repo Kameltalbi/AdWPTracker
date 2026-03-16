@@ -81,7 +81,6 @@ class ADWPT_Zone {
         $new_columns = [];
         $new_columns['cb'] = $columns['cb'];
         $new_columns['zone_name'] = __('Zone Name', 'adwptracker');
-        $new_columns['shortcode'] = __('Shortcode', 'adwptracker');
         $new_columns['ads_count'] = __('Ads', 'adwptracker');
         $new_columns['status'] = __('Status', 'adwptracker');
         $new_columns['date'] = __('Date', 'adwptracker');
@@ -102,59 +101,6 @@ class ADWPT_Zone {
                 echo '<span class="edit"><a href="' . esc_url($edit_link) . '">' . __('Edit', 'adwptracker') . '</a> | </span>';
                 echo '<span class="trash"><a href="' . get_delete_post_link($post_id) . '">' . __('Trash', 'adwptracker') . '</a></span>';
                 echo '</div>';
-                break;
-            
-            case 'shortcode':
-                $shortcode = '[adwptracker_zone id="' . $post_id . '"]';
-                ?>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <code id="zone-shortcode-<?php echo esc_attr($post_id); ?>" style="background: #1f2937; color: #10b981; padding: 6px 10px; border-radius: 4px; font-size: 12px; font-family: monospace; cursor: pointer;" onclick="copyZoneShortcode(<?php echo esc_js($post_id); ?>)" title="Cliquer pour copier">
-                        <?php echo esc_html($shortcode); ?>
-                    </code>
-                    <span id="zone-copied-<?php echo esc_attr($post_id); ?>" style="display: none; color: #10b981; font-size: 12px;">✓ Copié</span>
-                </div>
-                <script>
-                function copyZoneShortcode(id) {
-                    var code = document.getElementById('zone-shortcode-' + id);
-                    var text = code.textContent;
-                    
-                    // Use modern Clipboard API with fallback
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(text).then(function() {
-                            showZoneCopiedMessage(id);
-                        }).catch(function() {
-                            fallbackZoneCopy(text, id);
-                        });
-                    } else {
-                        fallbackZoneCopy(text, id);
-                    }
-                }
-                
-                function fallbackZoneCopy(text, id) {
-                    var input = document.createElement('input');
-                    input.value = text;
-                    input.style.position = 'fixed';
-                    input.style.opacity = '0';
-                    document.body.appendChild(input);
-                    input.select();
-                    try {
-                        document.execCommand('copy');
-                        showZoneCopiedMessage(id);
-                    } catch (err) {
-                        console.error('Copy failed:', err);
-                    }
-                    document.body.removeChild(input);
-                }
-                
-                function showZoneCopiedMessage(id) {
-                    var copied = document.getElementById('zone-copied-' + id);
-                    copied.style.display = 'inline';
-                    setTimeout(function() {
-                        copied.style.display = 'none';
-                    }, 2000);
-                }
-                </script>
-                <?php
                 break;
                 
             case 'status':

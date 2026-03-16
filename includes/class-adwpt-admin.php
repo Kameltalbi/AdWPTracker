@@ -244,11 +244,32 @@ class ADWPT_Admin {
             [$this, 'render_dashboard']
         );
         
+        // === GESTION DES CONTENUS ===
+        
+        // Liste complète (shortcodes centralisés)
+        add_submenu_page(
+            'adwptracker',
+            __('Liste Complète', 'adwptracker'),
+            __('📋 Liste Complète', 'adwptracker'),
+            'manage_options',
+            'adwptracker-liste',
+            [$this, 'render_liste_page']
+        );
+        
+        // Separator
+        add_submenu_page(
+            'adwptracker',
+            '',
+            '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
+            'manage_options',
+            '#'
+        );
+        
         // Ads management
         add_submenu_page(
             'adwptracker',
-            __('Ads', 'adwptracker'),
-            __('📢 Ads', 'adwptracker'),
+            __('Annonces', 'adwptracker'),
+            __('📢 Annonces', 'adwptracker'),
             'manage_options',
             'edit.php?post_type=adwpt_ad'
         );
@@ -256,8 +277,8 @@ class ADWPT_Admin {
         // Add new ad
         add_submenu_page(
             'adwptracker',
-            __('New Ad', 'adwptracker'),
-            __('&nbsp;&nbsp;&nbsp;➕ New Ad', 'adwptracker'),
+            __('Nouvelle Annonce', 'adwptracker'),
+            __('&nbsp;&nbsp;&nbsp;➕ Nouvelle Annonce', 'adwptracker'),
             'manage_options',
             'post-new.php?post_type=adwpt_ad'
         );
@@ -274,40 +295,63 @@ class ADWPT_Admin {
         // Add new zone
         add_submenu_page(
             'adwptracker',
-            __('New Zone', 'adwptracker'),
-            __('&nbsp;&nbsp;&nbsp;➕ New Zone', 'adwptracker'),
+            __('Nouvelle Zone', 'adwptracker'),
+            __('&nbsp;&nbsp;&nbsp;➕ Nouvelle Zone', 'adwptracker'),
             'manage_options',
             'post-new.php?post_type=adwpt_zone'
+        );
+        
+        // === STATISTIQUES ===
+        
+        // Separator
+        add_submenu_page(
+            'adwptracker',
+            '',
+            '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
+            'manage_options',
+            '#'
         );
         
         // Statistics
         add_submenu_page(
             'adwptracker',
-            __('Statistics', 'adwptracker'),
-            __('📈 Statistics', 'adwptracker'),
+            __('Statistiques', 'adwptracker'),
+            __('📈 Statistiques', 'adwptracker'),
             'manage_options',
             'adwptracker-stats',
             [$this, 'render_stats_page']
         );
         
-        // Liste complète (Ads & Zones avec shortcodes)
+        // === CONFIGURATION ===
+        
+        // Separator
         add_submenu_page(
             'adwptracker',
-            __('Liste Complète', 'adwptracker'),
-            __('📋 Liste Complète', 'adwptracker'),
+            '',
+            '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
             'manage_options',
-            'adwptracker-liste',
-            [$this, 'render_liste_page']
+            '#'
         );
         
         // Settings
         add_submenu_page(
             'adwptracker',
-            __('Settings', 'adwptracker'),
-            __('⚙️ Settings', 'adwptracker'),
+            __('Paramètres', 'adwptracker'),
+            __('⚙️ Paramètres', 'adwptracker'),
             'manage_options',
             'adwptracker-settings',
             [$this, 'render_settings_page']
+        );
+        
+        // === AIDE ===
+        
+        // Separator
+        add_submenu_page(
+            'adwptracker',
+            '',
+            '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
+            'manage_options',
+            '#'
         );
         
         // Documentation

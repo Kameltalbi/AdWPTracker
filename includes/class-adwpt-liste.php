@@ -50,21 +50,6 @@ class ADWPT_Liste {
                 .adwpt-shortcode-box:hover {
                     background: #374151;
                 }
-                .adwpt-badge {
-                    display: inline-block;
-                    padding: 4px 8px;
-                    border-radius: 3px;
-                    font-size: 11px;
-                    font-weight: 600;
-                }
-                .adwpt-badge-ad {
-                    background: #e3f2fd;
-                    color: #1976d2;
-                }
-                .adwpt-badge-zone {
-                    background: #f3e5f5;
-                    color: #7b1fa2;
-                }
             </style>
             
             <h2>📢 Annonces</h2>
