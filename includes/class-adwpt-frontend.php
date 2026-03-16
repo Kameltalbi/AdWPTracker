@@ -103,17 +103,45 @@ class ADWPT_Frontend {
         $link_target = get_post_meta($ad_id, '_adwpt_link_target', true) ?: '_blank';
         $zone_id = get_post_meta($ad_id, '_adwpt_zone_id', true);
         
+        // Get zone dimensions if zone exists
+        $zone_max_width = '';
+        $zone_max_height = '';
+        $has_fixed_width = false;
+        
+        if ($zone_id) {
+            $zone_max_width = get_post_meta($zone_id, '_adwpt_max_width', true);
+            $zone_max_height = get_post_meta($zone_id, '_adwpt_max_height', true);
+            $has_fixed_width = !empty($zone_max_width) && strpos($zone_max_width, '%') === false;
+        }
+        
+        // Build container style
+        $container_style = 'display: block; text-align: center;';
+        if ($has_fixed_width) {
+            $container_style .= ' max-width: ' . esc_attr($zone_max_width) . '; margin: 0 auto;';
+        }
+        
+        // Build image style
+        $img_style = 'display: block; margin: 0 auto; height: auto;';
+        if ($has_fixed_width) {
+            $img_style .= ' width: auto; max-width: ' . esc_attr($zone_max_width) . ';';
+        } else {
+            $img_style .= ' width: 100%; max-width: 100%;';
+        }
+        if (!empty($zone_max_height) && $zone_max_height !== 'auto') {
+            $img_style .= ' max-height: ' . esc_attr($zone_max_height) . '; object-fit: contain;';
+        }
+        
         // Start output
         ob_start();
         ?>
-        <div class="adwptracker-single-ad" data-ad-id="<?php echo esc_attr($ad_id); ?>" data-zone-id="<?php echo esc_attr($zone_id); ?>" style="display: block; width: 100%; max-width: 100%;">
+        <div class="adwptracker-single-ad" data-ad-id="<?php echo esc_attr($ad_id); ?>" data-zone-id="<?php echo esc_attr($zone_id); ?>" style="<?php echo esc_attr($container_style); ?>">
             <?php if ($type === 'image' && $image_url): ?>
                 <?php if ($link_url): ?>
-                    <a href="<?php echo esc_url($link_url); ?>" class="adwptracker-link" target="<?php echo esc_attr($link_target); ?>" rel="noopener" data-ad-id="<?php echo esc_attr($ad_id); ?>" data-zone-id="<?php echo esc_attr($zone_id); ?>">
-                        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($ad->post_title); ?>" style="width: 100%; height: auto; display: block;">
+                    <a href="<?php echo esc_url($link_url); ?>" class="adwptracker-link" target="<?php echo esc_attr($link_target); ?>" rel="noopener" data-ad-id="<?php echo esc_attr($ad_id); ?>" data-zone-id="<?php echo esc_attr($zone_id); ?>" style="display: block;">
+                        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($ad->post_title); ?>" style="<?php echo esc_attr($img_style); ?>">
                     </a>
                 <?php else: ?>
-                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($ad->post_title); ?>" style="width: 100%; height: auto; display: block;">
+                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($ad->post_title); ?>" style="<?php echo esc_attr($img_style); ?>">
                 <?php endif; ?>
                 
             <?php elseif ($type === 'html' && $html_code): ?>
