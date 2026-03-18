@@ -1020,7 +1020,7 @@ class ADWPT_Admin {
         // Meta box for zones
         add_meta_box(
             'adwpt_zone_settings',
-            __('Zone Settings', 'adwptracker'),
+            __('🎯 Configuration de la zone', 'adwptracker'),
             [$this, 'render_zone_meta_box'],
             'adwpt_zone',
             'normal',

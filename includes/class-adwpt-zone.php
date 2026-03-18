@@ -23,10 +23,13 @@ class ADWPT_Zone {
         add_filter('manage_adwpt_zone_posts_columns', [$this, 'add_custom_columns']);
         add_action('manage_adwpt_zone_posts_custom_column', [$this, 'render_custom_columns'], 10, 2);
         add_filter('manage_edit-adwpt_zone_sortable_columns', [$this, 'sortable_columns']);
-        
-        // Add meta boxes
-        add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
-        add_action('save_post_adwpt_zone', [$this, 'save_zone_meta'], 10, 2);
+
+        // Keep a single professional zone form in admin.
+        // ADWPT_Admin already provides a complete zone meta box + saving logic.
+        if (!class_exists('ADWPT_Admin')) {
+            add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
+            add_action('save_post_adwpt_zone', [$this, 'save_zone_meta'], 10, 2);
+        }
     }
 
     /**
