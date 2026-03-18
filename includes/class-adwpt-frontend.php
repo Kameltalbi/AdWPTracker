@@ -172,15 +172,15 @@ class ADWPT_Frontend {
                 if ($video_type === 'youtube') {
                     preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/', $video_url, $m);
                     if (isset($m[1])) {
-                        $embed = '<iframe width="100%" height="315" src="https://www.youtube.com/embed/' . esc_attr($m[1]) . '?autoplay=1&loop=1&playlist=' . esc_attr($m[1]) . '&mute=1" frameborder="0" allowfullscreen style="max-width: 100%;"></iframe>';
+                        $embed = '<iframe class="adwpt-video-youtube" width="100%" height="315" src="https://www.youtube.com/embed/' . esc_attr($m[1]) . '?autoplay=1&mute=1&playsinline=1&rel=0&controls=0&enablejsapi=1" frameborder="0" allowfullscreen style="max-width: 100%;"></iframe>';
                     }
                 } elseif ($video_type === 'vimeo') {
                     preg_match('/vimeo\.com\/(\d+)/', $video_url, $m);
                     if (isset($m[1])) {
-                        $embed = '<iframe src="https://player.vimeo.com/video/' . esc_attr($m[1]) . '?autoplay=1&loop=1&muted=1&background=1" width="100%" height="315" frameborder="0" allowfullscreen style="max-width: 100%;"></iframe>';
+                        $embed = '<iframe class="adwpt-video-vimeo" src="https://player.vimeo.com/video/' . esc_attr($m[1]) . '?autoplay=1&muted=1&background=1&loop=0" width="100%" height="315" frameborder="0" allowfullscreen style="max-width: 100%;"></iframe>';
                     }
                 } elseif ($video_type === 'mp4') {
-                    $embed = '<video autoplay loop muted playsinline style="width: 100%; max-width: 100%; height: auto;"><source src="' . esc_url($video_url) . '" type="video/mp4"></video>';
+                    $embed = '<video autoplay muted playsinline class="adwpt-video-mp4" style="width: 100%; max-width: 100%; height: auto;"><source src="' . esc_url($video_url) . '" type="video/mp4"></video>';
                 }
                 echo $embed;
                 ?>
@@ -274,6 +274,14 @@ class ADWPT_Frontend {
         wp_enqueue_script(
             'adwptracker-force-responsive',
             ADWPT_PLUGIN_URL . 'assets/js/force-responsive.js',
+            [],
+            ADWPT_VERSION,
+            true
+        );
+
+        wp_enqueue_script(
+            'adwptracker-video-loop',
+            ADWPT_PLUGIN_URL . 'assets/js/video-loop.js',
             [],
             ADWPT_VERSION,
             true
@@ -631,15 +639,15 @@ class ADWPT_Frontend {
                     if ($video_type === 'youtube') {
                         preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?\s]+)/', $video_url, $m);
                         if (isset($m[1])) {
-                            $embed = '<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;"><iframe src="https://www.youtube.com/embed/' . esc_attr($m[1]) . '?autoplay=1&loop=1&playlist=' . esc_attr($m[1]) . '&mute=1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>';
+                            $embed = '<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;"><iframe class="adwpt-video-youtube" src="https://www.youtube.com/embed/' . esc_attr($m[1]) . '?autoplay=1&mute=1&playsinline=1&rel=0&controls=0&enablejsapi=1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>';
                         }
                     } elseif ($video_type === 'vimeo') {
                         preg_match('/vimeo\.com\/(\d+)/', $video_url, $m);
                         if (isset($m[1])) {
-                            $embed = '<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;"><iframe src="https://player.vimeo.com/video/' . esc_attr($m[1]) . '?autoplay=1&loop=1&muted=1&background=1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe></div>';
+                            $embed = '<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;"><iframe class="adwpt-video-vimeo" src="https://player.vimeo.com/video/' . esc_attr($m[1]) . '?autoplay=1&muted=1&background=1&loop=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe></div>';
                         }
                     } elseif ($video_type === 'mp4') {
-                        $embed = '<video autoplay loop muted playsinline style="width: 100%; max-width: 100%; height: auto; display: block;"><source src="' . esc_url($video_url) . '" type="video/mp4">Votre navigateur ne supporte pas la vidéo HTML5.</video>';
+                        $embed = '<video autoplay muted playsinline class="adwpt-video-mp4" style="width: 100%; max-width: 100%; height: auto; display: block;"><source src="' . esc_url($video_url) . '" type="video/mp4">Votre navigateur ne supporte pas la vidéo HTML5.</video>';
                     }
                     
                     if ($embed) {
