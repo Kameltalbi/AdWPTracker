@@ -24,6 +24,7 @@ class ADWPT_Admin {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
         add_action('save_post', [$this, 'save_meta_boxes']);
+        add_action('pre_get_posts', [$this, 'filter_ads_by_zone']);
         add_filter('redirect_post_location', [$this, 'redirect_after_publish'], 10, 2);
         add_action('admin_notices', [$this, 'show_publish_notice']);
         
@@ -33,6 +34,37 @@ class ADWPT_Admin {
         
         // Export CSV handler
         add_action('admin_init', [$this, 'handle_export_csv']);
+    }
+
+    /**
+     * Filter ads list by zone from query string.
+     */
+    public function filter_ads_by_zone($query) {
+        if (!is_admin() || !$query->is_main_query()) {
+            return;
+        }
+
+        if ($query->get('post_type') !== 'adwpt_ad') {
+            return;
+        }
+
+        if (empty($_GET['adwpt_zone_id'])) {
+            return;
+        }
+
+        $zone_id = absint($_GET['adwpt_zone_id']);
+        if (!$zone_id) {
+            return;
+        }
+
+        $meta_query = (array) $query->get('meta_query');
+        $meta_query[] = [
+            'key' => '_adwpt_zone_id',
+            'value' => $zone_id,
+            'compare' => '=',
+            'type' => 'NUMERIC',
+        ];
+        $query->set('meta_query', $meta_query);
     }
     
     /**
@@ -1424,6 +1456,9 @@ if (function_exists('adwptracker_display_zone')) {<br>
         $link_url = get_post_meta($post->ID, '_adwpt_link_url', true);
         $link_target = get_post_meta($post->ID, '_adwpt_link_target', true) ?: '_blank';
         $zone_id = get_post_meta($post->ID, '_adwpt_zone_id', true);
+        if (!$zone_id && isset($_GET['adwpt_zone_id'])) {
+            $zone_id = absint($_GET['adwpt_zone_id']);
+        }
         $status = get_post_meta($post->ID, '_adwpt_status', true) ?: 'active';
         $start_date = get_post_meta($post->ID, '_adwpt_start_date', true);
         $end_date = get_post_meta($post->ID, '_adwpt_end_date', true);
@@ -1974,6 +2009,14 @@ if (function_exists('adwptracker_display_zone')) {<br>
                     <code>[adwptracker_zone id="<?php echo esc_attr($post->ID); ?>"]</code>
                     <p class="description">
                         <?php esc_html_e('Copiez ce shortcode pour afficher cette zone. Les paramètres ci-dessus seront appliqués automatiquement.', 'adwptracker'); ?>
+                    </p>
+                    <p style="margin-top: 10px;">
+                        <a class="button button-secondary" href="<?php echo esc_url(add_query_arg(['post_type' => 'adwpt_ad', 'adwpt_zone_id' => $post->ID], admin_url('edit.php'))); ?>">
+                            <?php esc_html_e('Voir les bannières de cette zone', 'adwptracker'); ?>
+                        </a>
+                        <a class="button button-primary" style="margin-left: 8px;" href="<?php echo esc_url(add_query_arg(['post_type' => 'adwpt_ad', 'adwpt_zone_id' => $post->ID], admin_url('post-new.php'))); ?>">
+                            <?php esc_html_e('Ajouter une bannière', 'adwptracker'); ?>
+                        </a>
                     </p>
                 </td>
             </tr>

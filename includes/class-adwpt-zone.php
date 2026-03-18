@@ -128,9 +128,17 @@ class ADWPT_Zone {
             case 'zone_name':
                 $title = get_the_title($post_id);
                 $edit_link = get_edit_post_link($post_id);
+                $ads_link = add_query_arg(
+                    [
+                        'post_type' => 'adwpt_ad',
+                        'adwpt_zone_id' => $post_id,
+                    ],
+                    admin_url('edit.php')
+                );
                 echo '<strong><a href="' . esc_url($edit_link) . '">' . esc_html($title) . '</a></strong>';
                 echo '<div class="row-actions">';
                 echo '<span class="edit"><a href="' . esc_url($edit_link) . '">' . __('Edit', 'adwptracker') . '</a> | </span>';
+                echo '<span class="view"><a href="' . esc_url($ads_link) . '">' . __('Bannières', 'adwptracker') . '</a> | </span>';
                 echo '<span class="trash"><a href="' . get_delete_post_link($post_id) . '">' . __('Trash', 'adwptracker') . '</a></span>';
                 echo '</div>';
                 break;
@@ -165,7 +173,15 @@ class ADWPT_Zone {
                     return empty($status) || $status === 'active';
                 });
                 
-                echo '<strong>' . count($active_ads) . '</strong>';
+                $ads_link = add_query_arg(
+                    [
+                        'post_type' => 'adwpt_ad',
+                        'adwpt_zone_id' => $post_id,
+                    ],
+                    admin_url('edit.php')
+                );
+
+                echo '<a href="' . esc_url($ads_link) . '"><strong>' . count($active_ads) . '</strong></a>';
                 break;
         }
     }

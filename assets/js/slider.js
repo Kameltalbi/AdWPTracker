@@ -4,6 +4,24 @@
 
 (function() {
     'use strict';
+
+    function setSingleAdMode(zoneElement) {
+        zoneElement.classList.remove('slider-ready');
+        const ads = zoneElement.querySelectorAll('.adwptracker-ad');
+        let firstVisibleSet = false;
+
+        ads.forEach(ad => {
+            const hasContent = ad && ad.innerHTML.trim() !== '';
+            if (!firstVisibleSet && hasContent && ad.offsetParent !== null) {
+                ad.style.display = 'block';
+                ad.classList.add('active');
+                firstVisibleSet = true;
+            } else {
+                ad.style.display = hasContent ? 'block' : 'none';
+                ad.classList.remove('active');
+            }
+        });
+    }
     
     /**
      * Get valid ads (filter out empty or removed ads)
@@ -43,8 +61,11 @@
         
         // No slider needed if only one ad or less
         if (ads.length <= 1) {
+            setSingleAdMode(zoneElement);
             return;
         }
+
+        zoneElement.classList.add('slider-ready');
         
         // Hide all ads except first
         ads.forEach((ad, index) => {
@@ -64,6 +85,7 @@
             
             // Stop rotation if not enough ads
             if (ads.length <= 1) {
+                setSingleAdMode(zoneElement);
                 return;
             }
             
@@ -154,6 +176,8 @@
             const ads = zone.querySelectorAll('.adwptracker-ad');
             if (ads.length > 1 && sliderEnabled === 'true') {
                 initSlider(zone);
+            } else {
+                setSingleAdMode(zone);
             }
         });
     }
@@ -174,8 +198,10 @@
                         if (node.nodeType === 1) {
                             if (node.classList && node.classList.contains('adwptracker-zone')) {
                                 const ads = node.querySelectorAll('.adwptracker-ad');
-                                if (ads.length > 1) {
+                                if (ads.length > 1 && node.getAttribute('data-slider') === 'true') {
                                     initSlider(node);
+                                } else {
+                                    setSingleAdMode(node);
                                 }
                             }
                         }

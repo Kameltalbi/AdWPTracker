@@ -105,22 +105,22 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
 }
 
 /* Slider transitions */
-.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.enable-slider .adwptracker-ad {
+.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.enable-slider.slider-ready .adwptracker-ad {
     transition: opacity 0.5s ease-in-out;
 }
-.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.enable-slider .adwptracker-ad:not(.active) {
+.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.enable-slider.slider-ready .adwptracker-ad:not(.active) {
     opacity: 0;
     position: absolute;
     top: 0;
     left: 0;
     pointer-events: none;
 }
-.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.enable-slider .adwptracker-ad.active {
+.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.enable-slider.slider-ready .adwptracker-ad.active {
     opacity: 1;
     position: relative;
 }
 
-.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.enable-slider {
+.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.enable-slider.slider-ready {
     position: relative;
 }
 </style>
