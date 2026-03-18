@@ -24,7 +24,11 @@ $has_fixed_width = !empty($zone_max_width) && strpos($zone_max_width, '%') === f
 // Build inline styles for zone container
 $zone_inline_style = '';
 if (!empty($zone_max_width)) {
-    $zone_inline_style .= 'width: ' . esc_attr($zone_width) . ' !important; ';
+    if ($has_fixed_width) {
+        $zone_inline_style .= 'width: 100% !important; ';
+    } else {
+        $zone_inline_style .= 'width: ' . esc_attr($zone_width) . ' !important; ';
+    }
     $zone_inline_style .= 'max-width: ' . esc_attr($zone_width) . ' !important; ';
     if ($has_fixed_width) {
         $zone_inline_style .= 'margin-left: auto !important; margin-right: auto !important; ';
@@ -44,7 +48,11 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
 /* Zone specific styles with high priority */
 .adwptracker-zone-<?php echo esc_attr($zone_id); ?> {
     <?php if (!empty($zone_max_width)): ?>
+    <?php if ($has_fixed_width): ?>
+    width: 100% !important;
+    <?php else: ?>
     width: <?php echo esc_attr($zone_width); ?> !important;
+    <?php endif; ?>
     max-width: <?php echo esc_attr($zone_width); ?> !important;
     <?php if ($has_fixed_width): ?>
     margin-left: auto !important;

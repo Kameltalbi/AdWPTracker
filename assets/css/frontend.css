@@ -34,7 +34,7 @@
 /* Image Ads - MOBILE FIRST APPROACH */
 .adwptracker-ad img {
     display: block;
-    width: 100%;
+    width: auto;
     max-width: 100%;
     height: auto;
     margin: 0 auto;
@@ -49,7 +49,7 @@
 .adwptracker-ad a img,
 .adwptracker-link img {
     display: block;
-    width: 100%;
+    width: auto;
     max-width: 100%;
     height: auto;
     margin: 0 auto;
@@ -58,7 +58,7 @@
 /* Link Wrapper */
 .adwptracker-link {
     display: block;
-    width: 100%;
+    width: auto;
     max-width: 100%;
     text-decoration: none;
     transition: opacity 0.2s ease;
@@ -113,7 +113,7 @@
     .adwptracker-ad img,
     .adwptracker-ad > a > img,
     .adwptracker-link > img {
-        width: 100%;
+        width: auto;
         max-width: 100%;
         height: auto;
         display: block;
@@ -135,7 +135,7 @@
     }
     
     .adwptracker-ad img {
-        width: 100%;
+        width: auto;
         height: auto;
     }
 }
@@ -159,8 +159,9 @@
 /* Override any theme styles that might break responsive */
 .adwptracker-ad img[width],
 .adwptracker-ad img[height] {
-    width: 100%;
+    width: auto;
     height: auto;
+    max-width: 100%;
 }
 
 /* Loading State (Optional) */
@@ -232,8 +233,9 @@
 /* iOS Safari specific fixes */
 @supports (-webkit-overflow-scrolling: touch) {
     .adwptracker-ad img {
-        width: 100%;
+        width: auto;
         height: auto;
+        max-width: 100%;
     }
 }
 
@@ -471,7 +473,7 @@
 
 /* Container ads responsive */
 .adwptracker-ad {
-    width: 100% !important;
+    width: auto !important;
     max-width: 100% !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
@@ -479,7 +481,7 @@
 
 /* Force all images to be responsive */
 .adwptracker-ad img {
-    width: 100% !important;
+    width: auto !important;
     max-width: 100% !important;
     height: auto !important;
     display: block !important;
@@ -493,7 +495,7 @@
 /* Links wrapper responsive */
 .adwptracker-ad a {
     display: block !important;
-    width: 100% !important;
+    width: auto !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
 }
@@ -507,7 +509,7 @@
     }
     
     .adwptracker-ad img {
-        width: 100% !important;
+        width: auto !important;
         max-width: 100vw !important;
         height: auto !important;
         object-fit: contain !important;
@@ -523,7 +525,7 @@
 }
 
 .adwptracker-html-content img {
-    width: 100% !important;
+    width: auto !important;
     max-width: 100% !important;
     height: auto !important;
 }

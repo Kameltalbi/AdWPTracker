@@ -115,7 +115,7 @@ class ADWPT_Frontend {
         }
         
         // Build container style
-        $container_style = 'display: block; text-align: center;';
+        $container_style = 'display: block; text-align: center; width: auto; max-width: 100%;';
         if ($has_fixed_width) {
             $container_style .= ' max-width: ' . esc_attr($zone_max_width) . '; margin: 0 auto;';
         }
@@ -123,12 +123,12 @@ class ADWPT_Frontend {
         // Build image style
         $img_style = 'display: block; margin: 0 auto; height: auto;';
         if ($has_fixed_width) {
-            $img_style .= ' width: auto; max-width: ' . esc_attr($zone_max_width) . ';';
+            $img_style .= ' width: auto !important; max-width: ' . esc_attr($zone_max_width) . ' !important;';
         } else {
-            $img_style .= ' width: 100%; max-width: 100%;';
+            $img_style .= ' width: auto !important; max-width: 100% !important;';
         }
         if (!empty($zone_max_height) && $zone_max_height !== 'auto') {
-            $img_style .= ' max-height: ' . esc_attr($zone_max_height) . '; object-fit: contain;';
+            $img_style .= ' max-height: ' . esc_attr($zone_max_height) . ' !important; object-fit: contain !important;';
         }
         
         // Start output

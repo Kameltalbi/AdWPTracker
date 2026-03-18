@@ -7,50 +7,36 @@
     'use strict';
     
     function forceAllAdsResponsive() {
-        // Force all ad containers
+        // Keep banner formats while preventing overflow.
         const ads = document.querySelectorAll('.adwptracker-ad');
         
         ads.forEach(function(ad) {
-            ad.style.cssText = `
-                width: 100% !important;
-                max-width: 100vw !important;
-                overflow: hidden !important;
-                box-sizing: border-box !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            `;
+            ad.style.maxWidth = '100%';
+            ad.style.boxSizing = 'border-box';
+            ad.style.overflow = 'hidden';
             
-            // Force all images inside
+            // Do not stretch fixed-size creatives (728x90, etc.).
             const images = ad.querySelectorAll('img');
             images.forEach(function(img) {
-                img.style.cssText = `
-                    width: 100% !important;
-                    max-width: 100vw !important;
-                    height: auto !important;
-                    display: block !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    border: none !important;
-                    object-fit: contain !important;
-                    box-sizing: border-box !important;
-                `;
+                img.style.width = 'auto';
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.style.display = 'block';
+                img.style.marginLeft = 'auto';
+                img.style.marginRight = 'auto';
+                img.style.boxSizing = 'border-box';
             });
             
-            // Force all links
+            // Keep links as wrappers without forcing full width.
             const links = ad.querySelectorAll('a');
             links.forEach(function(link) {
-                link.style.cssText = `
-                    display: block !important;
-                    width: 100% !important;
-                    max-width: 100vw !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    box-sizing: border-box !important;
-                `;
+                link.style.display = 'block';
+                link.style.maxWidth = '100%';
+                link.style.boxSizing = 'border-box';
             });
         });
         
-        console.log('AdWPtracker: Forced responsive on ' + ads.length + ' ads');
+        console.log('AdWPtracker: Responsive guard applied to ' + ads.length + ' ads');
     }
     
     // Run immediately
