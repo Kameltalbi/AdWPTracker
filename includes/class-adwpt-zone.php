@@ -28,6 +28,31 @@ class ADWPT_Zone {
         add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
         add_action('save_post_adwpt_zone', [$this, 'save_zone_meta'], 10, 2);
     }
+
+    /**
+     * Normalize a CSS dimension (e.g. 728 -> 728px).
+     */
+    private function normalize_dimension($value, $default = '') {
+        $value = strtolower(trim((string) $value));
+
+        if ($value === '') {
+            return $default;
+        }
+
+        if ($value === 'auto') {
+            return 'auto';
+        }
+
+        if (preg_match('/^\d+(\.\d+)?$/', $value)) {
+            return $value . 'px';
+        }
+
+        if (preg_match('/^\d+(\.\d+)?(px|%|vw|vh|rem|em)$/', $value)) {
+            return $value;
+        }
+
+        return $default;
+    }
     
     /**
      * Make columns sortable
@@ -456,11 +481,27 @@ class ADWPT_Zone {
         
         // Save dimensions
         if (isset($_POST['adwpt_max_width'])) {
-            update_post_meta($post_id, '_adwpt_max_width', sanitize_text_field($_POST['adwpt_max_width']));
+            $width_raw = sanitize_text_field($_POST['adwpt_max_width']);
+            $height_raw = isset($_POST['adwpt_max_height']) ? sanitize_text_field($_POST['adwpt_max_height']) : '';
+
+            // Support shorthand width input like "728x90".
+            if (preg_match('/^\s*(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)\s*$/i', $width_raw, $m)) {
+                $width_raw = $m[1] . 'px';
+                if ($height_raw === '' || strtolower($height_raw) === 'auto') {
+                    $height_raw = $m[3] . 'px';
+                }
+            }
+
+            update_post_meta($post_id, '_adwpt_max_width', $this->normalize_dimension($width_raw, ''));
+            update_post_meta($post_id, '_adwpt_max_height', $this->normalize_dimension($height_raw, 'auto'));
         }
-        
-        if (isset($_POST['adwpt_max_height'])) {
-            update_post_meta($post_id, '_adwpt_max_height', sanitize_text_field($_POST['adwpt_max_height']));
+
+        if (isset($_POST['adwpt_max_height']) && !isset($_POST['adwpt_max_width'])) {
+            update_post_meta(
+                $post_id,
+                '_adwpt_max_height',
+                $this->normalize_dimension(sanitize_text_field($_POST['adwpt_max_height']), 'auto')
+            );
         }
         
         // Save status

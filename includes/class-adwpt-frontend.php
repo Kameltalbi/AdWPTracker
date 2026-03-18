@@ -33,6 +33,55 @@ class ADWPT_Frontend {
         add_action('wp_ajax_adwptracker_track_click', [$this, 'track_click']);
         add_action('wp_ajax_nopriv_adwptracker_track_click', [$this, 'track_click']);
     }
+
+    /**
+     * Normalize CSS dimension values.
+     * Accepts values like "728", "728px", "100%", "auto".
+     */
+    private function normalize_dimension($value, $default = '') {
+        $value = strtolower(trim((string) $value));
+
+        if ($value === '') {
+            return $default;
+        }
+
+        if ($value === 'auto') {
+            return 'auto';
+        }
+
+        // Numeric values default to px.
+        if (preg_match('/^\d+(\.\d+)?$/', $value)) {
+            return $value . 'px';
+        }
+
+        // Valid CSS dimension units we support.
+        if (preg_match('/^\d+(\.\d+)?(px|%|vw|vh|rem|em)$/', $value)) {
+            return $value;
+        }
+
+        return $default;
+    }
+
+    /**
+     * Normalize zone width/height and support shorthand format "728x90".
+     */
+    private function normalize_zone_dimensions($raw_width, $raw_height) {
+        $width = trim((string) $raw_width);
+        $height = trim((string) $raw_height);
+
+        // If width is provided as "WxH", split into width and height.
+        if (preg_match('/^\s*(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)\s*$/i', $width, $m)) {
+            $width = $m[1] . 'px';
+            if ($height === '' || strtolower($height) === 'auto') {
+                $height = $m[3] . 'px';
+            }
+        }
+
+        $width = $this->normalize_dimension($width, '');
+        $height = $this->normalize_dimension($height, 'auto');
+
+        return [$width, $height];
+    }
     
     /**
      * Render single ad shortcode
@@ -111,6 +160,7 @@ class ADWPT_Frontend {
         if ($zone_id) {
             $zone_max_width = get_post_meta($zone_id, '_adwpt_max_width', true);
             $zone_max_height = get_post_meta($zone_id, '_adwpt_max_height', true);
+            [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($zone_max_width, $zone_max_height);
             $has_fixed_width = !empty($zone_max_width) && strpos($zone_max_width, '%') === false;
         }
         
@@ -336,6 +386,7 @@ class ADWPT_Frontend {
         $zone_slider_speed = get_post_meta($zone_id, '_adwpt_slider_speed', true) ?: '5';
         $zone_max_width = get_post_meta($zone_id, '_adwpt_max_width', true);
         $zone_max_height = get_post_meta($zone_id, '_adwpt_max_height', true);
+        [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($zone_max_width, $zone_max_height);
         
         // Use shortcode params or zone defaults
         $mode = !empty($atts['mode']) ? sanitize_text_field($atts['mode']) : $zone_mode;
