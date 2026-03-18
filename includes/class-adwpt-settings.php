@@ -116,6 +116,40 @@ class ADWPT_Settings {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Access Permissions -->
+                        <div class="adwpt-settings-card">
+                            <div class="card-header">
+                                <h3><span class="dashicons dashicons-admin-users"></span> Permissions d'accès</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="setting-item">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" name="access_editor" value="1" <?php checked($settings['access_editor'], '1'); ?>>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <div class="setting-info">
+                                        <strong>Autoriser le profil Éditeur</strong>
+                                        <p>Donne accès au menu AdWPtracker et à la gestion des zones/annonces.</p>
+                                    </div>
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" name="access_contributor" value="1" <?php checked($settings['access_contributor'], '1'); ?>>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <div class="setting-info">
+                                        <strong>Autoriser le profil Contributeur</strong>
+                                        <p>Permet l'accès à l'extension avec les limites natives WordPress.</p>
+                                    </div>
+                                </div>
+
+                                <p class="description" style="margin-top: 10px;">
+                                    Les changements s'appliquent après enregistrement.
+                                </p>
+                            </div>
+                        </div>
                         
                     </div>
                 </div>
@@ -765,6 +799,8 @@ class ADWPT_Settings {
                 'respect_dnt' => isset($_POST['respect_dnt']) ? '1' : '0',
                 'debug_mode' => isset($_POST['debug_mode']) ? '1' : '0',
                 'enable_api' => isset($_POST['enable_api']) ? '1' : '0',
+                'access_editor' => isset($_POST['access_editor']) ? '1' : '0',
+                'access_contributor' => isset($_POST['access_contributor']) ? '1' : '0',
             ];
             
             foreach ($settings as $key => $value) {
@@ -820,6 +856,8 @@ class ADWPT_Settings {
             'respect_dnt' => get_option('adwpt_respect_dnt', '0'),
             'debug_mode' => get_option('adwpt_debug_mode', '0'),
             'enable_api' => get_option('adwpt_enable_api', '0'),
+            'access_editor' => get_option('adwpt_access_editor', '0'),
+            'access_contributor' => get_option('adwpt_access_contributor', '0'),
         ];
     }
     

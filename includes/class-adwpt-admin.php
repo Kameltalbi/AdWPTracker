@@ -21,6 +21,7 @@ class ADWPT_Admin {
     
     private function __construct() {
         add_action('admin_menu', [$this, 'add_admin_menu']);
+        add_action('admin_init', [$this, 'sync_access_capabilities']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
         add_action('save_post', [$this, 'save_meta_boxes']);
@@ -34,6 +35,41 @@ class ADWPT_Admin {
         
         // Export CSV handler
         add_action('admin_init', [$this, 'handle_export_csv']);
+    }
+
+    /**
+     * Capability used to access plugin admin pages.
+     */
+    private function get_plugin_capability() {
+        return 'adwpt_manage';
+    }
+
+    /**
+     * Grant/revoke plugin access capability by role.
+     */
+    public function sync_access_capabilities() {
+        $capability = $this->get_plugin_capability();
+        $allow_editor = get_option('adwpt_access_editor', '0') === '1';
+        $allow_contributor = get_option('adwpt_access_contributor', '0') === '1';
+
+        $roles_map = [
+            'administrator' => true,
+            'editor' => $allow_editor,
+            'contributor' => $allow_contributor,
+        ];
+
+        foreach ($roles_map as $role_name => $should_have_access) {
+            $role = get_role($role_name);
+            if (!$role) {
+                continue;
+            }
+
+            if ($should_have_access) {
+                $role->add_cap($capability);
+            } else {
+                $role->remove_cap($capability);
+            }
+        }
     }
 
     /**
@@ -255,11 +291,13 @@ class ADWPT_Admin {
      * Add admin menu
      */
     public function add_admin_menu() {
+        $capability = $this->get_plugin_capability();
+
         // Main menu with modern icon
         add_menu_page(
             __('AdWPtracker', 'adwptracker'),
             __('AdWPtracker', 'adwptracker'),
-            'manage_options',
+            $capability,
             'adwptracker',
             [$this, 'render_dashboard'],
             'dashicons-chart-area',
@@ -271,7 +309,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Dashboard', 'adwptracker'),
             __('📊 Dashboard', 'adwptracker'),
-            'manage_options',
+            $capability,
             'adwptracker',
             [$this, 'render_dashboard']
         );
@@ -283,7 +321,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Liste des Annonces & Zones', 'adwptracker'),
             __('📋 Liste des Annonces & Zones', 'adwptracker'),
-            'manage_options',
+            $capability,
             'adwptracker-liste',
             [$this, 'render_liste_page']
         );
@@ -293,7 +331,7 @@ class ADWPT_Admin {
             'adwptracker',
             '',
             '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
-            'manage_options',
+            $capability,
             '#'
         );
         
@@ -302,7 +340,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Annonces', 'adwptracker'),
             __('📢 Annonces', 'adwptracker'),
-            'manage_options',
+            $capability,
             'edit.php?post_type=adwpt_ad'
         );
         
@@ -311,7 +349,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Nouvelle Annonce', 'adwptracker'),
             __('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✨ Nouvelle Annonce', 'adwptracker'),
-            'manage_options',
+            $capability,
             'post-new.php?post_type=adwpt_ad'
         );
         
@@ -320,7 +358,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Zones', 'adwptracker'),
             __('🎯 Zones', 'adwptracker'),
-            'manage_options',
+            $capability,
             'edit.php?post_type=adwpt_zone'
         );
         
@@ -329,7 +367,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Nouvelle Zone', 'adwptracker'),
             __('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✨ Nouvelle Zone', 'adwptracker'),
-            'manage_options',
+            $capability,
             'post-new.php?post_type=adwpt_zone'
         );
         
@@ -340,7 +378,7 @@ class ADWPT_Admin {
             'adwptracker',
             '',
             '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
-            'manage_options',
+            $capability,
             '#'
         );
         
@@ -349,7 +387,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Statistiques', 'adwptracker'),
             __('📈 Statistiques', 'adwptracker'),
-            'manage_options',
+            $capability,
             'adwptracker-stats',
             [$this, 'render_stats_page']
         );
@@ -361,7 +399,7 @@ class ADWPT_Admin {
             'adwptracker',
             '',
             '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
-            'manage_options',
+            $capability,
             '#'
         );
         
@@ -370,7 +408,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Paramètres', 'adwptracker'),
             __('⚙️ Paramètres', 'adwptracker'),
-            'manage_options',
+            $capability,
             'adwptracker-settings',
             [$this, 'render_settings_page']
         );
@@ -382,7 +420,7 @@ class ADWPT_Admin {
             'adwptracker',
             '',
             '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
-            'manage_options',
+            $capability,
             '#'
         );
         
@@ -391,7 +429,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Documentation', 'adwptracker'),
             __('📖 Documentation', 'adwptracker'),
-            'manage_options',
+            $capability,
             'adwptracker-docs',
             [$this, 'render_docs_page']
         );
@@ -401,7 +439,7 @@ class ADWPT_Admin {
             'adwptracker',
             __('Support', 'adwptracker'),
             __('💬 Support', 'adwptracker'),
-            'manage_options',
+            $capability,
             'adwptracker-support',
             [$this, 'render_support_page']
         );
@@ -2198,7 +2236,7 @@ if (function_exists('adwptracker_display_zone')) {<br>
         }
         
         // Check permissions
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can($this->get_plugin_capability())) {
             wp_die(__('Vous n\'avez pas les permissions nécessaires.', 'adwptracker'));
         }
         
