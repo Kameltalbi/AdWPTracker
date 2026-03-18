@@ -117,7 +117,7 @@ class ADWPT_Frontend {
         // Build container style
         $container_style = 'display: block; text-align: center; width: auto; max-width: 100%;';
         if ($has_fixed_width) {
-            $container_style .= ' max-width: ' . esc_attr($zone_max_width) . '; margin: 0 auto;';
+            $container_style .= ' width: ' . esc_attr($zone_max_width) . '; max-width: 100%; margin: 0 auto;';
         }
         
         // Build image style
