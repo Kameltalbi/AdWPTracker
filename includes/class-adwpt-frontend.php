@@ -82,6 +82,31 @@ class ADWPT_Frontend {
 
         return [$width, $height];
     }
+
+    /**
+     * Resolve predefined zone size key to width/height.
+     */
+    private function get_zone_size_dimensions($size_key) {
+        $sizes = [
+            'responsive' => ['width' => '100%', 'height' => 'auto'],
+            'leaderboard' => ['width' => '728px', 'height' => '90px'],
+            'banner' => ['width' => '468px', 'height' => '60px'],
+            'medium_rectangle' => ['width' => '300px', 'height' => '250px'],
+            'large_rectangle' => ['width' => '336px', 'height' => '280px'],
+            'skyscraper' => ['width' => '160px', 'height' => '600px'],
+            'half_page' => ['width' => '300px', 'height' => '600px'],
+            'large_leaderboard' => ['width' => '970px', 'height' => '90px'],
+            'billboard' => ['width' => '970px', 'height' => '250px'],
+            'square' => ['width' => '250px', 'height' => '250px'],
+            'small_square' => ['width' => '200px', 'height' => '200px'],
+            'button' => ['width' => '125px', 'height' => '125px'],
+            'sidebar_300' => ['width' => '300px', 'height' => 'auto'],
+            'sidebar_336' => ['width' => '336px', 'height' => 'auto'],
+        ];
+
+        $size_key = sanitize_key((string) $size_key);
+        return isset($sizes[$size_key]) ? $sizes[$size_key] : null;
+    }
     
     /**
      * Render single ad shortcode
@@ -161,6 +186,16 @@ class ADWPT_Frontend {
             $zone_max_width = get_post_meta($zone_id, '_adwpt_max_width', true);
             $zone_max_height = get_post_meta($zone_id, '_adwpt_max_height', true);
             [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($zone_max_width, $zone_max_height);
+
+            // Legacy fallback: some zones only have ad size key saved.
+            if (empty($zone_max_width)) {
+                $zone_size_key = get_post_meta($zone_id, '_adwpt_ad_size', true);
+                $size = $this->get_zone_size_dimensions($zone_size_key);
+                if ($size && $size['width'] !== '100%') {
+                    [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($size['width'], $size['height']);
+                }
+            }
+
             $has_fixed_width = !empty($zone_max_width) && strpos($zone_max_width, '%') === false;
         }
         
@@ -387,6 +422,15 @@ class ADWPT_Frontend {
         $zone_max_width = get_post_meta($zone_id, '_adwpt_max_width', true);
         $zone_max_height = get_post_meta($zone_id, '_adwpt_max_height', true);
         [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($zone_max_width, $zone_max_height);
+
+        // Legacy fallback: infer dimensions from saved format key.
+        if (empty($zone_max_width)) {
+            $zone_size_key = get_post_meta($zone_id, '_adwpt_ad_size', true);
+            $size = $this->get_zone_size_dimensions($zone_size_key);
+            if ($size && $size['width'] !== '100%') {
+                [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($size['width'], $size['height']);
+            }
+        }
         
         // Use shortcode params or zone defaults
         $mode = !empty($atts['mode']) ? sanitize_text_field($atts['mode']) : $zone_mode;
