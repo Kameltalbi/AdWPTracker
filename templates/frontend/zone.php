@@ -88,7 +88,7 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
 
 .adwptracker-zone-<?php echo esc_attr($zone_id); ?> img {
     <?php if ($has_fixed_width): ?>
-    width: auto !important;
+    width: 100% !important;
     max-width: <?php echo esc_attr($zone_width); ?> !important;
     <?php else: ?>
     width: 100% !important;
@@ -190,13 +190,13 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
                         <img src="<?php echo esc_url($image_url); ?>" 
                              alt="<?php echo esc_attr($ad->post_title); ?>" 
                              loading="lazy"
-                             style="<?php if ($has_fixed_width): ?>width: auto !important; max-width: <?php echo esc_attr($zone_width); ?> !important;<?php else: ?>width: 100% !important; max-width: 100% !important;<?php endif; ?> height: auto !important; display: block !important; box-sizing: border-box !important; object-fit: contain !important; margin: 0 auto !important; padding: 0 !important; border: none !important; <?php if (!empty($zone_max_height) && $zone_max_height !== 'auto'): ?>max-height: <?php echo esc_attr($zone_height); ?> !important;<?php endif; ?>">
+                             style="<?php if ($has_fixed_width): ?>width: 100% !important; max-width: <?php echo esc_attr($zone_width); ?> !important;<?php else: ?>width: 100% !important; max-width: 100% !important;<?php endif; ?> height: auto !important; display: block !important; box-sizing: border-box !important; object-fit: contain !important; margin: 0 auto !important; padding: 0 !important; border: none !important; <?php if (!empty($zone_max_height) && $zone_max_height !== 'auto'): ?>max-height: <?php echo esc_attr($zone_height); ?> !important;<?php endif; ?>">
                     </a>
                 <?php else: ?>
                     <img src="<?php echo esc_url($image_url); ?>" 
                          alt="<?php echo esc_attr($ad->post_title); ?>" 
                          loading="lazy"
-                         style="<?php if ($has_fixed_width): ?>width: auto !important; max-width: <?php echo esc_attr($zone_width); ?> !important;<?php else: ?>width: 100% !important; max-width: 100% !important;<?php endif; ?> height: auto !important; display: block !important; box-sizing: border-box !important; object-fit: contain !important; margin: 0 auto !important; padding: 0 !important; border: none !important; <?php if (!empty($zone_max_height) && $zone_max_height !== 'auto'): ?>max-height: <?php echo esc_attr($zone_height); ?> !important;<?php endif; ?>">
+                         style="<?php if ($has_fixed_width): ?>width: 100% !important; max-width: <?php echo esc_attr($zone_width); ?> !important;<?php else: ?>width: 100% !important; max-width: 100% !important;<?php endif; ?> height: auto !important; display: block !important; box-sizing: border-box !important; object-fit: contain !important; margin: 0 auto !important; padding: 0 !important; border: none !important; <?php if (!empty($zone_max_height) && $zone_max_height !== 'auto'): ?>max-height: <?php echo esc_attr($zone_height); ?> !important;<?php endif; ?>">
                 <?php endif; ?>
                 
             <?php elseif ($type === 'html' && $html_code): ?>

@@ -208,7 +208,7 @@ class ADWPT_Frontend {
         // Build image style
         $img_style = 'display: block; margin: 0 auto; height: auto;';
         if ($has_fixed_width) {
-            $img_style .= ' width: auto !important; max-width: ' . esc_attr($zone_max_width) . ' !important;';
+            $img_style .= ' width: 100% !important; max-width: ' . esc_attr($zone_max_width) . ' !important;';
         } else {
             $img_style .= ' width: auto !important; max-width: 100% !important;';
         }
