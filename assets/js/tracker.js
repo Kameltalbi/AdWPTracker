@@ -6,11 +6,6 @@
 (function() {
     'use strict';
     
-    // Tracked impressions set to prevent duplicates
-    const trackedImpressions = new Set();
-    
-    // Tracked clicks set to prevent duplicates
-    const trackedClicks = new Set();
     
     /**
      * Send AJAX request
@@ -55,15 +50,6 @@
             return;
         }
         
-        // Create unique key to prevent duplicate tracking
-        const trackingKey = `imp_${adId}_${zoneId}`;
-        
-        if (trackedImpressions.has(trackingKey)) {
-            return;
-        }
-        
-        trackedImpressions.add(trackingKey);
-        
         sendAjax('adwptracker_track_impression', {
             ad_id: adId,
             zone_id: zoneId
@@ -86,17 +72,8 @@
             return;
         }
         
-        // Create unique key to prevent duplicate tracking
-        const trackingKey = `click_${adId}_${zoneId}`;
-        
-        if (trackedClicks.has(trackingKey)) {
-            return;
-        }
-        
         // Prevent default to allow tracking first
         event.preventDefault();
-        
-        trackedClicks.add(trackingKey);
         
         sendAjax('adwptracker_track_click', {
             ad_id: adId,
