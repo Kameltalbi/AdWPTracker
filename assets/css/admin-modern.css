@@ -196,6 +196,110 @@
     top: 48px;
 }
 
+body.post-type-adwpt_ad .wp-list-table {
+    table-layout: auto;
+}
+
+body.post-type-adwpt_ad .wp-list-table th,
+body.post-type-adwpt_ad .wp-list-table td {
+    vertical-align: middle;
+}
+
+body.post-type-adwpt_ad .wp-list-table .column-preview {
+    width: 72px;
+}
+
+body.post-type-adwpt_ad .wp-list-table .column-ad_name {
+    min-width: 180px;
+}
+
+body.post-type-adwpt_ad .wp-list-table .column-shortcode {
+    min-width: 190px;
+}
+
+body.post-type-adwpt_ad .wp-list-table .column-type,
+body.post-type-adwpt_ad .wp-list-table .column-zone,
+body.post-type-adwpt_ad .wp-list-table .column-device,
+body.post-type-adwpt_ad .wp-list-table .column-status {
+    min-width: 90px;
+}
+
+body.post-type-adwpt_ad .wp-list-table .column-impressions,
+body.post-type-adwpt_ad .wp-list-table .column-clicks,
+body.post-type-adwpt_ad .wp-list-table .column-ctr {
+    width: 88px;
+    text-align: center;
+}
+
+body.post-type-adwpt_ad .wp-list-table .column-date {
+    width: 115px;
+}
+
+body.post-type-adwpt_ad .wp-list-table .column-actions {
+    width: 72px;
+    text-align: right;
+}
+
+.adwpt-row-actions-menu {
+    position: relative;
+    display: inline-flex;
+    justify-content: flex-end;
+}
+
+.adwpt-row-actions-toggle {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #fff;
+    color: #111827;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 24px;
+}
+
+.adwpt-row-actions-toggle:hover,
+.adwpt-row-actions-toggle:focus {
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+.adwpt-row-actions-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 38px;
+    z-index: 20;
+    min-width: 165px;
+    padding: 6px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .14);
+    text-align: left;
+}
+
+.adwpt-row-actions-menu.is-open .adwpt-row-actions-dropdown {
+    display: block;
+}
+
+.adwpt-row-actions-dropdown a {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: #111827;
+    text-decoration: none;
+}
+
+.adwpt-row-actions-dropdown a:hover,
+.adwpt-row-actions-dropdown a:focus {
+    background: #f3f4f6;
+}
+
+.adwpt-row-actions-dropdown a.is-danger {
+    color: #b91c1c;
+}
+
 @media (max-width: 1200px) {
     .adwpt-grid-4 {
         grid-template-columns: repeat(2, minmax(0, 1fr));

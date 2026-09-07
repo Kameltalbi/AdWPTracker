@@ -103,16 +103,17 @@ class ADWPT_Ad {
         $new_columns = [];
         $new_columns['cb'] = $columns['cb'];
         $new_columns['preview'] = __('Aperçu', 'adwptracker');
-        $new_columns['ad_name'] = __('Ad Name', 'adwptracker');
+        $new_columns['ad_name'] = __('Publicité', 'adwptracker');
         $new_columns['shortcode'] = __('Shortcode', 'adwptracker');
         $new_columns['type'] = __('Type', 'adwptracker');
         $new_columns['zone'] = __('Zone', 'adwptracker');
         $new_columns['device'] = __('Appareil', 'adwptracker');
-        $new_columns['status'] = __('Status', 'adwptracker');
+        $new_columns['status'] = __('Statut', 'adwptracker');
         $new_columns['impressions'] = __('Impressions', 'adwptracker');
-        $new_columns['clicks'] = __('Clicks', 'adwptracker');
+        $new_columns['clicks'] = __('Clics', 'adwptracker');
         $new_columns['ctr'] = __('CTR', 'adwptracker');
         $new_columns['date'] = __('Date', 'adwptracker');
+        $new_columns['actions'] = __('Actions', 'adwptracker');
         
         return $new_columns;
     }
@@ -135,10 +136,6 @@ class ADWPT_Ad {
                 $title = get_the_title($post_id);
                 $edit_link = get_edit_post_link($post_id);
                 echo '<strong><a href="' . esc_url($edit_link) . '">' . esc_html($title) . '</a></strong>';
-                echo '<div class="row-actions">';
-                echo '<span class="edit"><a href="' . esc_url($edit_link) . '">' . __('Edit', 'adwptracker') . '</a> | </span>';
-                echo '<span class="trash"><a href="' . get_delete_post_link($post_id) . '">' . __('Trash', 'adwptracker') . '</a></span>';
-                echo '</div>';
                 break;
 
             case 'shortcode':
@@ -236,7 +233,43 @@ class ADWPT_Ad {
                     echo '-';
                 }
                 break;
+
+            case 'actions':
+                $this->render_actions_menu($post_id);
+                break;
         }
+    }
+
+    private function render_actions_menu($post_id) {
+        if (!current_user_can('edit_post', $post_id)) {
+            echo '-';
+            return;
+        }
+
+        $status = get_post_meta($post_id, '_adwpt_status', true) ?: 'active';
+        $duplicate_url = wp_nonce_url(
+            admin_url('admin.php?action=duplicate_ad&post=' . $post_id),
+            'duplicate_ad_' . $post_id
+        );
+        $toggle_url = wp_nonce_url(
+            admin_url('admin.php?action=toggle_ad_status&post=' . $post_id),
+            'toggle_ad_status_' . $post_id
+        );
+        ?>
+        <div class="adwpt-row-actions-menu">
+            <button type="button" class="adwpt-row-actions-toggle" aria-haspopup="true" aria-expanded="false">
+                <span class="screen-reader-text"><?php esc_html_e('Actions de la publicité', 'adwptracker'); ?></span>
+                ⋯
+            </button>
+            <div class="adwpt-row-actions-dropdown" role="menu">
+                <a role="menuitem" href="<?php echo esc_url(get_edit_post_link($post_id)); ?>"><?php esc_html_e('Modifier', 'adwptracker'); ?></a>
+                <a role="menuitem" href="<?php echo esc_url($duplicate_url); ?>"><?php esc_html_e('Dupliquer', 'adwptracker'); ?></a>
+                <a role="menuitem" href="<?php echo esc_url($toggle_url); ?>"><?php echo esc_html($status === 'active' ? __('Mettre en pause', 'adwptracker') : __('Activer', 'adwptracker')); ?></a>
+                <a role="menuitem" href="<?php echo esc_url(admin_url('admin.php?page=adwptracker-stats')); ?>"><?php esc_html_e('Statistiques', 'adwptracker'); ?></a>
+                <a role="menuitem" class="is-danger" href="<?php echo esc_url(get_delete_post_link($post_id)); ?>"><?php esc_html_e('Supprimer', 'adwptracker'); ?></a>
+            </div>
+        </div>
+        <?php
     }
     
     /**

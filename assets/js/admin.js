@@ -148,6 +148,26 @@ jQuery(document).ready(function($) {
         copied();
     });
 
+    $(document).on('click', '.adwpt-row-actions-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var menu = $(this).closest('.adwpt-row-actions-menu');
+        $('.adwpt-row-actions-menu').not(menu).removeClass('is-open').find('.adwpt-row-actions-toggle').attr('aria-expanded', 'false');
+        menu.toggleClass('is-open');
+        $(this).attr('aria-expanded', menu.hasClass('is-open') ? 'true' : 'false');
+    });
+
+    $(document).on('click', function() {
+        $('.adwpt-row-actions-menu').removeClass('is-open').find('.adwpt-row-actions-toggle').attr('aria-expanded', 'false');
+    });
+
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape') {
+            $('.adwpt-row-actions-menu').removeClass('is-open').find('.adwpt-row-actions-toggle').attr('aria-expanded', 'false');
+        }
+    });
+
     function escapeHtml(value) {
         return $('<div>').text(value || '').html();
     }
