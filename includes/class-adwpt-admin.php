@@ -417,8 +417,9 @@ class ADWPT_Admin {
             wp_enqueue_media();
         }
         
+        $current_post_type = $post_type ?: get_post_type();
         if (strpos($hook, 'adwptracker') === false && 
-            !in_array(get_post_type(), ['adwpt_zone', 'adwpt_ad'])) {
+            !in_array($current_post_type, ['adwpt_zone', 'adwpt_ad'], true)) {
             return;
         }
         

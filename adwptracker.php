@@ -3,7 +3,7 @@
  * Plugin Name: AdWPtracker - Advanced Ad Manager with Mobile Sticky Footer
  * Plugin URI: https://adwptracker.com
  * Description: Professional WordPress advertising management plugin with unique mobile sticky footer, real-time statistics, device targeting, and advanced analytics
- * Version: 3.7.0
+ * Version: 3.7.1
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: Kamel Talbi
@@ -29,7 +29,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 
 // Define plugin constants
 if (!defined('ADWPT_VERSION')) {
-    define('ADWPT_VERSION', '3.7.0');
+    define('ADWPT_VERSION', '3.7.1');
 }
 if (!defined('ADWPT_PLUGIN_DIR')) {
     define('ADWPT_PLUGIN_DIR', plugin_dir_path(__FILE__));

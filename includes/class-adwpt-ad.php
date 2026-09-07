@@ -107,7 +107,6 @@ class ADWPT_Ad {
         $new_columns['shortcode'] = __('Shortcode', 'adwptracker');
         $new_columns['type'] = __('Type', 'adwptracker');
         $new_columns['zone'] = __('Zone', 'adwptracker');
-        $new_columns['device'] = __('Appareil', 'adwptracker');
         $new_columns['status'] = __('Statut', 'adwptracker');
         $new_columns['impressions'] = __('Impressions', 'adwptracker');
         $new_columns['clicks'] = __('Clics', 'adwptracker');
