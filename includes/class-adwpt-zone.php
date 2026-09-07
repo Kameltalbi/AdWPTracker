@@ -23,6 +23,9 @@ class ADWPT_Zone {
         add_filter('manage_adwpt_zone_posts_columns', [$this, 'add_custom_columns']);
         add_action('manage_adwpt_zone_posts_custom_column', [$this, 'render_custom_columns'], 10, 2);
         add_filter('manage_edit-adwpt_zone_sortable_columns', [$this, 'sortable_columns']);
+        add_filter('post_row_actions', [$this, 'remove_default_row_actions'], 10, 2);
+        add_action('admin_action_duplicate_zone', [$this, 'duplicate_zone']);
+        add_action('admin_action_toggle_zone_status', [$this, 'toggle_zone_status']);
 
         // Keep a single professional zone form in admin.
         // ADWPT_Admin already provides a complete zone meta box + saving logic.
@@ -128,11 +131,12 @@ class ADWPT_Zone {
         
         $new_columns = [];
         $new_columns['cb'] = $columns['cb'];
-        $new_columns['zone_name'] = __('Zone Name', 'adwptracker');
+        $new_columns['zone_name'] = __('Zone', 'adwptracker');
         $new_columns['shortcode'] = __('Shortcode', 'adwptracker');
-        $new_columns['ads_count'] = __('Ads', 'adwptracker');
-        $new_columns['status'] = __('Status', 'adwptracker');
+        $new_columns['ads_count'] = __('Publicités', 'adwptracker');
+        $new_columns['status'] = __('Statut', 'adwptracker');
         $new_columns['date'] = __('Date', 'adwptracker');
+        $new_columns['actions'] = __('Actions', 'adwptracker');
         
         return $new_columns;
     }
@@ -153,11 +157,6 @@ class ADWPT_Zone {
                     admin_url('edit.php')
                 );
                 echo '<strong><a href="' . esc_url($edit_link) . '">' . esc_html($title) . '</a></strong>';
-                echo '<div class="row-actions">';
-                echo '<span class="edit"><a href="' . esc_url($edit_link) . '">' . __('Edit', 'adwptracker') . '</a> | </span>';
-                echo '<span class="view"><a href="' . esc_url($ads_link) . '">' . __('Bannières', 'adwptracker') . '</a> | </span>';
-                echo '<span class="trash"><a href="' . get_delete_post_link($post_id) . '">' . __('Trash', 'adwptracker') . '</a></span>';
-                echo '</div>';
                 break;
 
             case 'shortcode':
@@ -203,7 +202,120 @@ class ADWPT_Zone {
 
                 echo '<a href="' . esc_url($ads_link) . '"><strong>' . count($active_ads) . '</strong></a>';
                 break;
+
+            case 'actions':
+                $this->render_actions_menu($post_id);
+                break;
         }
+    }
+
+    public function remove_default_row_actions($actions, $post) {
+        if ($post->post_type === 'adwpt_zone') {
+            return [];
+        }
+
+        return $actions;
+    }
+
+    private function render_actions_menu($post_id) {
+        if (!current_user_can('edit_post', $post_id)) {
+            echo '-';
+            return;
+        }
+
+        $ads_link = add_query_arg(
+            [
+                'post_type' => 'adwpt_ad',
+                'adwpt_zone_id' => $post_id,
+            ],
+            admin_url('edit.php')
+        );
+        $duplicate_url = wp_nonce_url(
+            admin_url('admin.php?action=duplicate_zone&post=' . $post_id),
+            'duplicate_zone_' . $post_id
+        );
+        $toggle_url = wp_nonce_url(
+            admin_url('admin.php?action=toggle_zone_status&post=' . $post_id),
+            'toggle_zone_status_' . $post_id
+        );
+        $status = get_post_meta($post_id, '_adwpt_status', true) ?: 'active';
+        ?>
+        <div class="adwpt-row-actions-menu">
+            <button type="button" class="adwpt-row-actions-toggle" aria-haspopup="true" aria-expanded="false">
+                <span class="screen-reader-text"><?php esc_html_e('Actions de la zone', 'adwptracker'); ?></span>
+                ⋯
+            </button>
+            <div class="adwpt-row-actions-dropdown" role="menu">
+                <a role="menuitem" href="<?php echo esc_url(get_edit_post_link($post_id)); ?>"><?php esc_html_e('Modifier', 'adwptracker'); ?></a>
+                <a role="menuitem" href="<?php echo esc_url($ads_link); ?>"><?php esc_html_e('Voir les publicités', 'adwptracker'); ?></a>
+                <a role="menuitem" href="<?php echo esc_url($duplicate_url); ?>"><?php esc_html_e('Dupliquer', 'adwptracker'); ?></a>
+                <a role="menuitem" href="<?php echo esc_url($toggle_url); ?>"><?php echo esc_html($status === 'active' ? __('Mettre en pause', 'adwptracker') : __('Activer', 'adwptracker')); ?></a>
+                <a role="menuitem" class="is-danger" href="<?php echo esc_url(get_delete_post_link($post_id)); ?>"><?php esc_html_e('Supprimer', 'adwptracker'); ?></a>
+            </div>
+        </div>
+        <?php
+    }
+
+    public function duplicate_zone() {
+        if (!isset($_GET['post'], $_GET['_wpnonce'])) {
+            wp_die(__('Aucune zone sélectionnée.', 'adwptracker'));
+        }
+
+        $post_id = absint($_GET['post']);
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'duplicate_zone_' . $post_id)) {
+            wp_die(__('Security check failed!', 'adwptracker'));
+        }
+
+        if (!current_user_can('edit_post', $post_id)) {
+            wp_die(__('Vous n’avez pas la permission de dupliquer cette zone.', 'adwptracker'));
+        }
+
+        $post = get_post($post_id);
+        if (!$post || $post->post_type !== 'adwpt_zone') {
+            wp_die(__('Zone introuvable.', 'adwptracker'));
+        }
+
+        $new_post_id = wp_insert_post([
+            'post_title' => $post->post_title . ' (Copy)',
+            'post_type' => 'adwpt_zone',
+            'post_status' => 'draft',
+            'post_content' => $post->post_content,
+        ]);
+
+        if (is_wp_error($new_post_id)) {
+            wp_die(__('Impossible de dupliquer la zone.', 'adwptracker'));
+        }
+
+        $meta = get_post_meta($post_id);
+        foreach ($meta as $key => $values) {
+            foreach ($values as $value) {
+                add_post_meta($new_post_id, $key, maybe_unserialize($value));
+            }
+        }
+
+        wp_safe_redirect(get_edit_post_link($new_post_id, ''));
+        exit;
+    }
+
+    public function toggle_zone_status() {
+        if (!isset($_GET['post'], $_GET['_wpnonce'])) {
+            wp_die(__('Aucune zone sélectionnée.', 'adwptracker'));
+        }
+
+        $post_id = absint($_GET['post']);
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'toggle_zone_status_' . $post_id)) {
+            wp_die(__('Security check failed!', 'adwptracker'));
+        }
+
+        if (!current_user_can('edit_post', $post_id)) {
+            wp_die(__('Vous n’avez pas la permission de modifier cette zone.', 'adwptracker'));
+        }
+
+        $status = get_post_meta($post_id, '_adwpt_status', true) ?: 'active';
+        update_post_meta($post_id, '_adwpt_status', $status === 'active' ? 'inactive' : 'active');
+
+        wp_safe_redirect(admin_url('edit.php?post_type=adwpt_zone'));
+        exit;
     }
     
     /**

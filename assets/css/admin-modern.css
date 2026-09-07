@@ -196,17 +196,40 @@
     top: 48px;
 }
 
-body.post-type-adwpt_ad .wp-list-table {
+body.post-type-adwpt_ad .wp-list-table,
+body.post-type-adwpt_zone .wp-list-table {
     table-layout: auto;
+    overflow: visible;
 }
 
 body.post-type-adwpt_ad .wp-list-table th,
-body.post-type-adwpt_ad .wp-list-table td {
+body.post-type-adwpt_ad .wp-list-table td,
+body.post-type-adwpt_zone .wp-list-table th,
+body.post-type-adwpt_zone .wp-list-table td {
     vertical-align: middle;
+    overflow: visible;
+}
+
+body.post-type-adwpt_ad .wp-list-table tbody td,
+body.post-type-adwpt_ad .wp-list-table tbody th,
+body.post-type-adwpt_zone .wp-list-table tbody td,
+body.post-type-adwpt_zone .wp-list-table tbody th {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+body.post-type-adwpt_ad .wp-list-table .row-actions,
+body.post-type-adwpt_zone .wp-list-table .row-actions {
+    display: none;
 }
 
 body.post-type-adwpt_ad .wp-list-table .column-preview {
-    width: 72px;
+    width: 58px;
+}
+
+body.post-type-adwpt_ad .wp-list-table .column-preview img {
+    width: 44px !important;
+    height: 32px !important;
 }
 
 body.post-type-adwpt_ad .wp-list-table .column-ad_name {
@@ -240,6 +263,25 @@ body.post-type-adwpt_ad .wp-list-table .column-actions {
     text-align: right;
 }
 
+body.post-type-adwpt_zone .wp-list-table .column-zone_name {
+    min-width: 220px;
+}
+
+body.post-type-adwpt_zone .wp-list-table .column-shortcode {
+    min-width: 220px;
+}
+
+body.post-type-adwpt_zone .wp-list-table .column-ads_count,
+body.post-type-adwpt_zone .wp-list-table .column-status,
+body.post-type-adwpt_zone .wp-list-table .column-date,
+body.post-type-adwpt_zone .wp-list-table .column-actions {
+    width: 100px;
+}
+
+body.post-type-adwpt_zone .wp-list-table .column-actions {
+    text-align: right;
+}
+
 .adwpt-row-actions-menu {
     position: relative;
     display: inline-flex;
@@ -269,7 +311,7 @@ body.post-type-adwpt_ad .wp-list-table .column-actions {
     position: absolute;
     right: 0;
     top: 38px;
-    z-index: 20;
+    z-index: 9999;
     min-width: 165px;
     padding: 6px;
     border: 1px solid #e5e7eb;
@@ -277,6 +319,11 @@ body.post-type-adwpt_ad .wp-list-table .column-actions {
     background: #fff;
     box-shadow: 0 12px 30px rgba(15, 23, 42, .14);
     text-align: left;
+}
+
+.adwpt-row-actions-menu.is-dropup .adwpt-row-actions-dropdown {
+    top: auto;
+    bottom: 38px;
 }
 
 .adwpt-row-actions-menu.is-open .adwpt-row-actions-dropdown {

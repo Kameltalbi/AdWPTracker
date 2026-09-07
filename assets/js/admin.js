@@ -154,17 +154,22 @@ jQuery(document).ready(function($) {
 
         var menu = $(this).closest('.adwpt-row-actions-menu');
         $('.adwpt-row-actions-menu').not(menu).removeClass('is-open').find('.adwpt-row-actions-toggle').attr('aria-expanded', 'false');
+        $('.adwpt-row-actions-menu').not(menu).removeClass('is-dropup');
+
+        var buttonRect = this.getBoundingClientRect();
+        var estimatedMenuHeight = 230;
+        menu.toggleClass('is-dropup', (window.innerHeight - buttonRect.bottom) < estimatedMenuHeight);
         menu.toggleClass('is-open');
         $(this).attr('aria-expanded', menu.hasClass('is-open') ? 'true' : 'false');
     });
 
     $(document).on('click', function() {
-        $('.adwpt-row-actions-menu').removeClass('is-open').find('.adwpt-row-actions-toggle').attr('aria-expanded', 'false');
+        $('.adwpt-row-actions-menu').removeClass('is-open is-dropup').find('.adwpt-row-actions-toggle').attr('aria-expanded', 'false');
     });
 
     $(document).on('keydown', function(e) {
         if (e.key === 'Escape') {
-            $('.adwpt-row-actions-menu').removeClass('is-open').find('.adwpt-row-actions-toggle').attr('aria-expanded', 'false');
+            $('.adwpt-row-actions-menu').removeClass('is-open is-dropup').find('.adwpt-row-actions-toggle').attr('aria-expanded', 'false');
         }
     });
 

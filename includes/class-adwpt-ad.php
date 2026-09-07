@@ -275,6 +275,10 @@ class ADWPT_Ad {
      * Add duplicate link to row actions
      */
     public function add_duplicate_action($actions, $post) {
+        if ($post->post_type === 'adwpt_ad') {
+            return [];
+        }
+
         if ($post->post_type === 'adwpt_ad' && current_user_can('edit_post', $post->ID)) {
             $duplicate_url = wp_nonce_url(
                 admin_url('admin.php?action=duplicate_ad&post=' . $post->ID),
