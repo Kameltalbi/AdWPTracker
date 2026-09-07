@@ -13,7 +13,9 @@
     function sendAjax(action, data, callback) {
         // Check if adwptrackerData is available
         if (typeof adwptrackerData === 'undefined' || !adwptrackerData.ajax_url || !adwptrackerData.nonce) {
-            console.error('AdWPtracker: Tracking data not available');
+            if (window.console) {
+                console.error('AdWPtracker: Tracking data not available');
+            }
             return;
         }
         
@@ -35,8 +37,14 @@
         .then(response => response.json())
         .then(callback)
         .catch(error => {
-            console.error('AdWPtracker tracking error:', error);
+            if (window.console && adwptrackerData.debug === '1') {
+                console.error('AdWPtracker tracking error:', error);
+            }
         });
+    }
+
+    function isTrackingEnabled() {
+        return typeof adwptrackerData !== 'undefined' && adwptrackerData.tracking_enabled === '1';
     }
     
     /**
@@ -46,9 +54,11 @@
         const adId = adElement.getAttribute('data-ad-id');
         const zoneId = adElement.getAttribute('data-zone-id');
         
-        if (!adId || !zoneId) {
+        if (!isTrackingEnabled() || !adId || !zoneId || adElement.dataset.adwptImpressionTracked === '1') {
             return;
         }
+
+        adElement.dataset.adwptImpressionTracked = '1';
         
         sendAjax('adwptracker_track_impression', {
             ad_id: adId,
@@ -68,27 +78,14 @@
         const zoneId = linkElement.getAttribute('data-zone-id');
         const targetUrl = linkElement.getAttribute('href');
         
-        if (!adId || !zoneId) {
+        if (!isTrackingEnabled() || !adId || !zoneId) {
             return;
         }
-        
-        // Prevent default to allow tracking first
-        event.preventDefault();
         
         sendAjax('adwptracker_track_click', {
             ad_id: adId,
             zone_id: zoneId
-        }, function(response) {
-            if (response.success && targetUrl) {
-                // Redirect after tracking
-                const target = linkElement.getAttribute('target') || '_self';
-                if (target === '_blank') {
-                    window.open(targetUrl, '_blank', 'noopener,noreferrer');
-                } else {
-                    window.location.href = targetUrl;
-                }
-            }
-        });
+        }, function() {});
     }
     
     /**
@@ -219,6 +216,10 @@
      * Initialize all tracking
      */
     function init() {
+        if (!isTrackingEnabled()) {
+            return;
+        }
+
         // Wait for DOM to be ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {

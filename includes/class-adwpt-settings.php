@@ -20,16 +20,18 @@ class ADWPT_Settings {
         $system_info = self::get_system_info();
         
         ?>
-        <div class="wrap adwpt-settings-wrap">
+        <div class="wrap adwpt-settings-wrap adwpt-admin">
             
             <!-- Header -->
             <div class="adwpt-settings-header">
                 <h1>
                     <span class="dashicons dashicons-admin-settings"></span>
-                    <?php esc_html_e('Paramètres Avancés', 'adwptracker'); ?>
+                    <?php esc_html_e('Paramètres', 'adwptracker'); ?>
                 </h1>
                 <p class="subtitle"><?php esc_html_e('Configuration et optimisation de votre système publicitaire', 'adwptracker'); ?></p>
             </div>
+
+            <?php settings_errors('adwpt_settings'); ?>
             
             <!-- Tabs Navigation -->
             <nav class="adwpt-tabs-nav">
@@ -39,19 +41,19 @@ class ADWPT_Settings {
                 </button>
                 <button class="adwpt-tab-btn" data-tab="performance">
                     <span class="dashicons dashicons-performance"></span>
-                    Performance
+                    Affichage
                 </button>
                 <button class="adwpt-tab-btn" data-tab="privacy">
                     <span class="dashicons dashicons-shield"></span>
-                    Confidentialité
+                    Tracking
                 </button>
                 <button class="adwpt-tab-btn" data-tab="advanced">
                     <span class="dashicons dashicons-admin-tools"></span>
-                    Avancé
+                    Sécurité
                 </button>
                 <button class="adwpt-tab-btn" data-tab="system">
                     <span class="dashicons dashicons-info"></span>
-                    Système
+                    Avancé
                 </button>
             </nav>
             
@@ -780,6 +782,10 @@ class ADWPT_Settings {
     }
     
     private static function handle_submissions() {
+        if (!empty($_POST) && !current_user_can('adwpt_manage')) {
+            wp_die(__('Vous n’avez pas les permissions nécessaires.', 'adwptracker'));
+        }
+
         if (isset($_POST['adwpt_settings_submit'])) {
             check_admin_referer('adwpt_settings_nonce');
             
@@ -814,7 +820,7 @@ class ADWPT_Settings {
             check_admin_referer('adwpt_reset_stats_nonce');
             
             global $wpdb;
-            $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}adwpt_stats");
+            $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}adwptracker_stats");
             
             add_settings_error('adwpt_settings', 'stats_reset', 'Statistiques réinitialisées !', 'success');
         }
@@ -827,6 +833,13 @@ class ADWPT_Settings {
             header('Content-Type: application/json');
             header('Content-Disposition: attachment; filename="adwptracker-settings-' . date('Y-m-d') . '.json"');
             echo json_encode($settings, JSON_PRETTY_PRINT);
+            exit;
+        }
+
+        if (isset($_POST['adwpt_export_stats'])) {
+            check_admin_referer('adwpt_settings_nonce');
+
+            wp_safe_redirect(wp_nonce_url(admin_url('admin.php?adwptracker_export=csv'), 'adwptracker_export_csv'));
             exit;
         }
         
@@ -864,8 +877,13 @@ class ADWPT_Settings {
     private static function get_system_info() {
         global $wpdb;
         
-        $stats_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}adwpt_stats");
-        $db_size = $wpdb->get_var("SELECT ROUND(((data_length + index_length) / 1024 / 1024), 2) as size FROM information_schema.TABLES WHERE table_schema = '" . DB_NAME . "' AND table_name = '{$wpdb->prefix}adwpt_stats'");
+        $stats_table = $wpdb->prefix . 'adwptracker_stats';
+        $stats_count = $wpdb->get_var("SELECT COUNT(*) FROM {$stats_table}");
+        $db_size = $wpdb->get_var($wpdb->prepare(
+            "SELECT ROUND(((data_length + index_length) / 1024 / 1024), 2) as size FROM information_schema.TABLES WHERE table_schema = %s AND table_name = %s",
+            DB_NAME,
+            $stats_table
+        ));
         $mysql_version = $wpdb->get_var("SELECT VERSION()");
         
         return [

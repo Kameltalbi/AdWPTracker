@@ -92,6 +92,22 @@ class ADWPT_Zone {
             'show_in_menu' => false,
             'show_in_rest' => true,
             'capability_type' => 'post',
+            'capabilities' => [
+                'edit_post' => 'adwpt_manage',
+                'read_post' => 'adwpt_manage',
+                'delete_post' => 'adwpt_manage',
+                'edit_posts' => 'adwpt_manage',
+                'edit_others_posts' => 'adwpt_manage',
+                'publish_posts' => 'adwpt_manage',
+                'read_private_posts' => 'adwpt_manage',
+                'delete_posts' => 'adwpt_manage',
+                'delete_private_posts' => 'adwpt_manage',
+                'delete_published_posts' => 'adwpt_manage',
+                'delete_others_posts' => 'adwpt_manage',
+                'edit_private_posts' => 'adwpt_manage',
+                'edit_published_posts' => 'adwpt_manage',
+                'create_posts' => 'adwpt_manage',
+            ],
             'hierarchical' => false,
             'supports' => ['title'],
             'has_archive' => false,
@@ -113,6 +129,7 @@ class ADWPT_Zone {
         $new_columns = [];
         $new_columns['cb'] = $columns['cb'];
         $new_columns['zone_name'] = __('Zone Name', 'adwptracker');
+        $new_columns['shortcode'] = __('Shortcode', 'adwptracker');
         $new_columns['ads_count'] = __('Ads', 'adwptracker');
         $new_columns['status'] = __('Status', 'adwptracker');
         $new_columns['date'] = __('Date', 'adwptracker');
@@ -142,14 +159,17 @@ class ADWPT_Zone {
                 echo '<span class="trash"><a href="' . get_delete_post_link($post_id) . '">' . __('Trash', 'adwptracker') . '</a></span>';
                 echo '</div>';
                 break;
+
+            case 'shortcode':
+                $shortcode = '[adwptracker_zone id="' . $post_id . '"]';
+                echo '<code style="cursor: pointer;" title="' . esc_attr__('Cliquer pour copier', 'adwptracker') . '">' . esc_html($shortcode) . '</code>';
+                break;
                 
             case 'status':
                 $status = get_post_meta($post_id, '_adwpt_status', true) ?: 'active';
                 $is_active = ($status === 'active');
-                $bg_color = $is_active ? '#d4edda' : '#f8d7da';
-                $text_color = $is_active ? '#155724' : '#721c24';
                 $label = $is_active ? __('Active', 'adwptracker') : __('Inactive', 'adwptracker');
-                echo '<span style="display: inline-block; padding: 3px 10px; border-radius: 3px; font-size: 12px; font-weight: 600; background: ' . $bg_color . '; color: ' . $text_color . '; white-space: nowrap;">' . esc_html($label) . '</span>';
+                echo '<span class="adwpt-badge ' . ($is_active ? 'adwpt-badge-active' : 'adwpt-badge-paused') . '">' . esc_html($label) . '</span>';
                 break;
                 
             case 'ads_count':

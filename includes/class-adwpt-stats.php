@@ -90,7 +90,7 @@ class ADWPT_Stats {
         $ad_id = absint($ad_id);
         $zone_id = absint($zone_id);
         
-        if (!$ad_id || !$zone_id) {
+        if (!$ad_id) {
             return false;
         }
         
@@ -120,7 +120,7 @@ class ADWPT_Stats {
         $ad_id = absint($ad_id);
         $zone_id = absint($zone_id);
         
-        if (!$ad_id || !$zone_id) {
+        if (!$ad_id) {
             return false;
         }
         

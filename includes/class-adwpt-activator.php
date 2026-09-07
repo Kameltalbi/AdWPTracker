@@ -117,7 +117,7 @@ class ADWPT_Activator {
      */
     private static function set_default_options() {
         $defaults = [
-            'adwptracker_tracking_enabled' => 'yes',
+            'adwpt_tracking_enabled' => '1',
             'adwptracker_cache_compatible' => 'yes',
         ];
         

@@ -168,7 +168,7 @@
         }
         
         // Track impression
-        if (content && typeof adwptrackerData !== 'undefined') {
+        if (content && typeof adwptrackerData !== 'undefined' && adwptrackerData.tracking_enabled === '1') {
             const adId = content.getAttribute('data-ad-id');
             const zoneId = content.getAttribute('data-zone-id');
             
@@ -198,7 +198,7 @@
      * Track impression
      */
     function trackImpression(adId, zoneId) {
-        if (typeof adwptrackerData === 'undefined') {
+        if (typeof adwptrackerData === 'undefined' || adwptrackerData.tracking_enabled !== '1') {
             return;
         }
         
@@ -226,7 +226,7 @@
      * Track click
      */
     function trackClick(adId, zoneId) {
-        if (typeof adwptrackerData === 'undefined') {
+        if (typeof adwptrackerData === 'undefined' || adwptrackerData.tracking_enabled !== '1') {
             return;
         }
         

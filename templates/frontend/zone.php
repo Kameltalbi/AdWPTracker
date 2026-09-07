@@ -20,6 +20,18 @@ $zone_height = !empty($zone_max_height) ? $zone_max_height : 'auto';
 
 // Check if zone has fixed width (not percentage)
 $has_fixed_width = !empty($zone_max_width) && strpos($zone_max_width, '%') === false;
+$wide_header_width = 0;
+$wide_header_height = 0;
+
+if ($has_fixed_width && preg_match('/^(\d+(?:\.\d+)?)px$/', $zone_width, $width_match)) {
+    $wide_header_width = (float) $width_match[1];
+}
+
+if (!empty($zone_height) && $zone_height !== 'auto' && preg_match('/^(\d+(?:\.\d+)?)px$/', $zone_height, $height_match)) {
+    $wide_header_height = (float) $height_match[1];
+}
+
+$is_wide_header_format = $wide_header_width >= 728 && ($wide_header_height === 0 || $wide_header_height <= 120);
 
 // Build inline styles for zone container
 $zone_inline_style = '';
@@ -88,8 +100,8 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
 
 .adwptracker-zone-<?php echo esc_attr($zone_id); ?> img {
     <?php if ($has_fixed_width): ?>
-    width: 100% !important;
-    max-width: <?php echo esc_attr($zone_width); ?> !important;
+    width: auto !important;
+    max-width: 100% !important;
     <?php else: ?>
     width: 100% !important;
     max-width: 100% !important;
@@ -103,6 +115,23 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
     object-fit: contain !important;
     <?php endif; ?>
 }
+
+<?php if ($is_wide_header_format): ?>
+.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.adwpt-wide-header-format {
+    margin-top: 14px !important;
+    margin-bottom: 18px !important;
+    line-height: 0 !important;
+}
+
+.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.adwpt-wide-header-format .adwptracker-ad {
+    margin: 0 auto !important;
+    line-height: 0 !important;
+}
+
+.adwptracker-zone-<?php echo esc_attr($zone_id); ?>.adwpt-wide-header-format .adwptracker-link {
+    line-height: 0 !important;
+}
+<?php endif; ?>
 
 /* Slider transitions */
 .adwptracker-zone-<?php echo esc_attr($zone_id); ?>.enable-slider.slider-ready .adwptracker-ad {
@@ -125,8 +154,8 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
 }
 </style>
 
-<div class="adwptracker-zone adwptracker-zone-<?php echo esc_attr($zone_id); ?><?php echo $enable_slider ? ' enable-slider' : ''; ?>" 
-     data-zone-id="<?php echo esc_attr($zone_id); ?>" 
+<div class="adwptracker-zone adwptracker-zone-<?php echo esc_attr($zone_id); ?><?php echo $enable_slider ? ' enable-slider' : ''; ?><?php echo $is_wide_header_format ? ' adwpt-wide-header-format' : ''; ?>"
+     data-zone-id="<?php echo esc_attr($zone_id); ?>"
      data-slider="<?php echo $enable_slider ? 'true' : 'false'; ?>"
      data-slider-speed="<?php echo esc_attr($slider_speed); ?>"
      style="<?php echo $zone_inline_style; ?>">
@@ -151,6 +180,18 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
         $show_on_desktop = get_post_meta($ad_id, '_adwpt_show_on_desktop', true) !== '0';
         $sticky_enabled = get_post_meta($ad_id, '_adwpt_sticky_enabled', true);
         $sticky_position = get_post_meta($ad_id, '_adwpt_sticky_position', true) ?: 'top';
+
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        $is_tablet = preg_match('/(tablet|ipad|playbook|silk)|(android(?!.*mobile))|kindle/i', $user_agent);
+        $is_mobile_or_tablet = wp_is_mobile() || $is_tablet || preg_match('/mobile|android|iphone|ipod|blackberry|iemobile|opera mini/i', $user_agent);
+
+        if (!$show_on_mobile && $is_mobile_or_tablet) {
+            continue;
+        }
+
+        if (!$show_on_desktop && !$is_mobile_or_tablet) {
+            continue;
+        }
         
         // Build classes for device visibility
         $device_classes = [];
@@ -177,7 +218,7 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
         <div class="adwptracker-ad <?php echo esc_attr(implode(' ', $device_classes)); ?>" 
              data-ad-id="<?php echo esc_attr($ad_id); ?>" 
              data-zone-id="<?php echo esc_attr($zone_id); ?>"
-             style="width: 100% !important; max-width: 100% !important; display: block !important; box-sizing: border-box !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important;">
+             style="width: 100% !important; max-width: 100% !important; display: block; box-sizing: border-box !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important;">
             <?php if ($type === 'image' && $image_url): ?>
                 <?php if ($link_url): ?>
                     <a href="<?php echo esc_url($link_url); ?>" 
@@ -190,13 +231,13 @@ $zone_inline_style .= 'display: block !important; box-sizing: border-box !import
                         <img src="<?php echo esc_url($image_url); ?>" 
                              alt="<?php echo esc_attr($ad->post_title); ?>" 
                              loading="lazy"
-                             style="<?php if ($has_fixed_width): ?>width: 100% !important; max-width: <?php echo esc_attr($zone_width); ?> !important;<?php else: ?>width: 100% !important; max-width: 100% !important;<?php endif; ?> height: auto !important; display: block !important; box-sizing: border-box !important; object-fit: contain !important; margin: 0 auto !important; padding: 0 !important; border: none !important; <?php if (!empty($zone_max_height) && $zone_max_height !== 'auto'): ?>max-height: <?php echo esc_attr($zone_height); ?> !important;<?php endif; ?>">
+                             style="<?php if ($has_fixed_width): ?>width: auto !important; max-width: 100% !important;<?php else: ?>width: 100% !important; max-width: 100% !important;<?php endif; ?> height: auto !important; display: block !important; box-sizing: border-box !important; object-fit: contain !important; margin: 0 auto !important; padding: 0 !important; border: none !important; <?php if (!empty($zone_max_height) && $zone_max_height !== 'auto'): ?>max-height: <?php echo esc_attr($zone_height); ?> !important;<?php endif; ?>">
                     </a>
                 <?php else: ?>
                     <img src="<?php echo esc_url($image_url); ?>" 
                          alt="<?php echo esc_attr($ad->post_title); ?>" 
                          loading="lazy"
-                         style="<?php if ($has_fixed_width): ?>width: 100% !important; max-width: <?php echo esc_attr($zone_width); ?> !important;<?php else: ?>width: 100% !important; max-width: 100% !important;<?php endif; ?> height: auto !important; display: block !important; box-sizing: border-box !important; object-fit: contain !important; margin: 0 auto !important; padding: 0 !important; border: none !important; <?php if (!empty($zone_max_height) && $zone_max_height !== 'auto'): ?>max-height: <?php echo esc_attr($zone_height); ?> !important;<?php endif; ?>">
+                         style="<?php if ($has_fixed_width): ?>width: auto !important; max-width: 100% !important;<?php else: ?>width: 100% !important; max-width: 100% !important;<?php endif; ?> height: auto !important; display: block !important; box-sizing: border-box !important; object-fit: contain !important; margin: 0 auto !important; padding: 0 !important; border: none !important; <?php if (!empty($zone_max_height) && $zone_max_height !== 'auto'): ?>max-height: <?php echo esc_attr($zone_height); ?> !important;<?php endif; ?>">
                 <?php endif; ?>
                 
             <?php elseif ($type === 'html' && $html_code): ?>

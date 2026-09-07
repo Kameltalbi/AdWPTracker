@@ -84,6 +84,93 @@ class ADWPT_Frontend {
     }
 
     /**
+     * Detect whether the current request is mobile or tablet.
+     */
+    private function is_mobile_or_tablet_request() {
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        $is_tablet = preg_match('/(tablet|ipad|playbook|silk)|(android(?!.*mobile))|kindle/i', $user_agent);
+
+        return wp_is_mobile() || $is_tablet || preg_match('/mobile|android|iphone|ipod|blackberry|iemobile|opera mini/i', $user_agent);
+    }
+
+    /**
+     * Check the current request against the ad device visibility settings.
+     */
+    private function ad_matches_device_visibility($ad_id) {
+        $is_mobile_or_tablet = $this->is_mobile_or_tablet_request();
+        $show_on_mobile_meta = get_post_meta($ad_id, '_adwpt_show_on_mobile', true);
+        $show_on_desktop_meta = get_post_meta($ad_id, '_adwpt_show_on_desktop', true);
+        $show_on_mobile = $show_on_mobile_meta !== '0';
+        $show_on_desktop = $show_on_desktop_meta !== '0';
+
+        // Legacy device setting support only applies before the new checkbox metas exist.
+        if ($show_on_mobile_meta === '' && $show_on_desktop_meta === '') {
+            $device = get_post_meta($ad_id, '_adwpt_device', true) ?: 'all';
+            if ($device === 'desktop') {
+                $show_on_mobile = false;
+                $show_on_desktop = true;
+            } elseif ($device === 'mobile' || $device === 'tablet') {
+                $show_on_mobile = true;
+                $show_on_desktop = false;
+            }
+        }
+
+        if (!$show_on_mobile && $is_mobile_or_tablet) {
+            return false;
+        }
+
+        if (!$show_on_desktop && !$is_mobile_or_tablet) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check whether frontend tracking is enabled by settings/privacy choices.
+     */
+    private function is_tracking_enabled() {
+        if (get_option('adwpt_tracking_enabled', '1') !== '1') {
+            return false;
+        }
+
+        if (get_option('adwpt_respect_dnt', '0') === '1') {
+            $dnt = isset($_SERVER['HTTP_DNT']) ? (string) $_SERVER['HTTP_DNT'] : '';
+            $global_privacy_control = isset($_SERVER['HTTP_SEC_GPC']) ? (string) $_SERVER['HTTP_SEC_GPC'] : '';
+            if ($dnt === '1' || $global_privacy_control === '1') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate that an ad can be tracked for the provided zone context.
+     */
+    private function is_trackable_ad($ad_id, $zone_id = 0) {
+        $ad = get_post($ad_id);
+        if (!$ad || $ad->post_type !== 'adwpt_ad' || $ad->post_status !== 'publish') {
+            return false;
+        }
+
+        if (get_post_meta($ad_id, '_adwpt_status', true) === 'inactive') {
+            return false;
+        }
+
+        if (!$this->ad_matches_device_visibility($ad_id)) {
+            return false;
+        }
+
+        $saved_zone_id = absint(get_post_meta($ad_id, '_adwpt_zone_id', true));
+        if ($zone_id && $saved_zone_id && $saved_zone_id !== absint($zone_id)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Resolve predefined zone size key to width/height.
      */
     private function get_zone_size_dimensions($size_key) {
@@ -96,6 +183,7 @@ class ADWPT_Frontend {
             'skyscraper' => ['width' => '160px', 'height' => '600px'],
             'half_page' => ['width' => '300px', 'height' => '600px'],
             'large_leaderboard' => ['width' => '970px', 'height' => '90px'],
+            'large_leaderboard_100' => ['width' => '970px', 'height' => '100px'],
             'billboard' => ['width' => '970px', 'height' => '250px'],
             'square' => ['width' => '250px', 'height' => '250px'],
             'small_square' => ['width' => '200px', 'height' => '200px'],
@@ -144,25 +232,9 @@ class ADWPT_Frontend {
             return '';
         }
         
-        // Check device
-        $device = get_post_meta($ad_id, '_adwpt_device', true) ?: 'all';
-        if ($device !== 'all') {
-            $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-            
-            // Improved tablet detection
-            $is_tablet = preg_match('/(tablet|ipad|playbook|silk)|(android(?!.*mobile))|kindle/i', $user_agent);
-            
-            // Improved mobile detection
-            $is_mobile = wp_is_mobile() || preg_match('/mobile|android|iphone|ipod|blackberry|iemobile|opera mini/i', $user_agent);
-            
-            // Tablet is mobile but not phone
-            if ($is_tablet) {
-                $is_mobile = false;
-            }
-            
-            if ($device === 'desktop' && ($is_mobile || $is_tablet)) return '';
-            if ($device === 'mobile' && !$is_mobile) return '';
-            if ($device === 'tablet' && !$is_tablet) return '';
+        // Check device visibility.
+        if (!$this->ad_matches_device_visibility($ad_id)) {
+            return '';
         }
         
         // Get ad data
@@ -185,14 +257,14 @@ class ADWPT_Frontend {
         if ($zone_id) {
             $zone_max_width = get_post_meta($zone_id, '_adwpt_max_width', true);
             $zone_max_height = get_post_meta($zone_id, '_adwpt_max_height', true);
-            [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($zone_max_width, $zone_max_height);
+            list($zone_max_width, $zone_max_height) = $this->normalize_zone_dimensions($zone_max_width, $zone_max_height);
 
             // Legacy fallback: some zones only have ad size key saved.
             if (empty($zone_max_width)) {
                 $zone_size_key = get_post_meta($zone_id, '_adwpt_ad_size', true);
                 $size = $this->get_zone_size_dimensions($zone_size_key);
                 if ($size && $size['width'] !== '100%') {
-                    [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($size['width'], $size['height']);
+                    list($zone_max_width, $zone_max_height) = $this->normalize_zone_dimensions($size['width'], $size['height']);
                 }
             }
 
@@ -208,7 +280,7 @@ class ADWPT_Frontend {
         // Build image style
         $img_style = 'display: block; margin: 0 auto; height: auto;';
         if ($has_fixed_width) {
-            $img_style .= ' width: 100% !important; max-width: ' . esc_attr($zone_max_width) . ' !important;';
+            $img_style .= ' width: auto !important; max-width: 100% !important;';
         } else {
             $img_style .= ' width: auto !important; max-width: 100% !important;';
         }
@@ -272,42 +344,6 @@ class ADWPT_Frontend {
             <?php endif; ?>
         </div>
         
-        <script>
-        jQuery(document).ready(function($) {
-            // Track impression
-            var adId = <?php echo esc_js($ad_id); ?>;
-            var zoneId = <?php echo esc_js($zone_id); ?>;
-            
-            if (typeof adwptrackerData !== 'undefined') {
-                $.ajax({
-                    url: adwptrackerData.ajax_url,
-                    method: 'POST',
-                    data: {
-                        action: 'adwptracker_track_impression',
-                        nonce: adwptrackerData.nonce,
-                        ad_id: adId,
-                        zone_id: zoneId
-                    }
-                });
-            }
-            
-            // Track click
-            $('.adwptracker-single-ad [data-ad-id="' + adId + '"]').on('click', function() {
-                if (typeof adwptrackerData !== 'undefined') {
-                    $.ajax({
-                        url: adwptrackerData.ajax_url,
-                        method: 'POST',
-                        data: {
-                            action: 'adwptracker_track_click',
-                            nonce: adwptrackerData.nonce,
-                            ad_id: adId,
-                            zone_id: zoneId
-                        }
-                    });
-                }
-            });
-        });
-        </script>
         <?php
         return ob_get_clean();
     }
@@ -375,11 +411,15 @@ class ADWPT_Frontend {
         wp_localize_script('adwptracker-tracker', 'adwptrackerData', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('adwptracker_tracking'),
+            'tracking_enabled' => $this->is_tracking_enabled() ? '1' : '0',
+            'debug' => get_option('adwpt_debug_mode', '0') === '1' ? '1' : '0',
         ]);
         
         wp_localize_script('adwptracker-sticky-mobile', 'adwptrackerData', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('adwptracker_tracking'),
+            'tracking_enabled' => $this->is_tracking_enabled() ? '1' : '0',
+            'debug' => get_option('adwpt_debug_mode', '0') === '1' ? '1' : '0',
         ]);
     }
     
@@ -421,14 +461,14 @@ class ADWPT_Frontend {
         $zone_slider_speed = get_post_meta($zone_id, '_adwpt_slider_speed', true) ?: '5';
         $zone_max_width = get_post_meta($zone_id, '_adwpt_max_width', true);
         $zone_max_height = get_post_meta($zone_id, '_adwpt_max_height', true);
-        [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($zone_max_width, $zone_max_height);
+        list($zone_max_width, $zone_max_height) = $this->normalize_zone_dimensions($zone_max_width, $zone_max_height);
 
         // Legacy fallback: infer dimensions from saved format key.
         if (empty($zone_max_width)) {
             $zone_size_key = get_post_meta($zone_id, '_adwpt_ad_size', true);
             $size = $this->get_zone_size_dimensions($zone_size_key);
             if ($size && $size['width'] !== '100%') {
-                [$zone_max_width, $zone_max_height] = $this->normalize_zone_dimensions($size['width'], $size['height']);
+                list($zone_max_width, $zone_max_height) = $this->normalize_zone_dimensions($size['width'], $size['height']);
             }
         }
         
@@ -493,6 +533,17 @@ class ADWPT_Frontend {
         if (empty($ads)) {
             return '<!-- AdWPtracker: No ads matching date criteria -->';
         }
+
+        // Filter by current device before random selection/rendering.
+        $ads = array_filter($ads, function($ad) {
+            return $this->ad_matches_device_visibility($ad->ID);
+        });
+
+        $ads = array_values($ads);
+
+        if (empty($ads)) {
+            return '<!-- AdWPtracker: No ads matching device criteria -->';
+        }
         
         // Select ads based on mode and slider setting
         if ($mode === 'random' && $slider !== 'yes' && count($ads) > 0) {
@@ -526,12 +577,20 @@ class ADWPT_Frontend {
      */
     public function track_impression() {
         check_ajax_referer('adwptracker_tracking', 'nonce');
+
+        if (!$this->is_tracking_enabled()) {
+            wp_send_json_error(['message' => 'Tracking disabled']);
+        }
         
         $ad_id = isset($_POST['ad_id']) ? absint($_POST['ad_id']) : 0;
         $zone_id = isset($_POST['zone_id']) ? absint($_POST['zone_id']) : 0;
         
-        if (!$ad_id || !$zone_id) {
+        if (!$ad_id) {
             wp_send_json_error(['message' => 'Invalid parameters']);
+        }
+
+        if (!$this->is_trackable_ad($ad_id, $zone_id)) {
+            wp_send_json_error(['message' => 'Ad is not trackable']);
         }
         
         if (!class_exists('ADWPT_Stats')) {
@@ -553,12 +612,20 @@ class ADWPT_Frontend {
      */
     public function track_click() {
         check_ajax_referer('adwptracker_tracking', 'nonce');
+
+        if (!$this->is_tracking_enabled()) {
+            wp_send_json_error(['message' => 'Tracking disabled']);
+        }
         
         $ad_id = isset($_POST['ad_id']) ? absint($_POST['ad_id']) : 0;
         $zone_id = isset($_POST['zone_id']) ? absint($_POST['zone_id']) : 0;
         
-        if (!$ad_id || !$zone_id) {
+        if (!$ad_id) {
             wp_send_json_error(['message' => 'Invalid parameters']);
+        }
+
+        if (!$this->is_trackable_ad($ad_id, $zone_id)) {
+            wp_send_json_error(['message' => 'Ad is not trackable']);
         }
         
         if (!class_exists('ADWPT_Stats')) {

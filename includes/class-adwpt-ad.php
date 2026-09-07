@@ -23,10 +23,12 @@ class ADWPT_Ad {
         add_filter('manage_adwpt_ad_posts_columns', [$this, 'add_custom_columns']);
         add_action('manage_adwpt_ad_posts_custom_column', [$this, 'render_custom_columns'], 10, 2);
         add_filter('manage_edit-adwpt_ad_sortable_columns', [$this, 'sortable_columns']);
+        add_filter('views_edit-adwpt_ad', [$this, 'add_status_views']);
+        add_action('pre_get_posts', [$this, 'filter_admin_ads']);
         
-        // Add duplicate action
         add_filter('post_row_actions', [$this, 'add_duplicate_action'], 10, 2);
         add_action('admin_action_duplicate_ad', [$this, 'duplicate_ad']);
+        add_action('admin_action_toggle_ad_status', [$this, 'toggle_ad_status']);
     }
     
     /**
@@ -34,9 +36,6 @@ class ADWPT_Ad {
      */
     public function sortable_columns($columns) {
         $columns['ad_name'] = 'title';
-        $columns['impressions'] = 'impressions';
-        $columns['clicks'] = 'clicks';
-        $columns['ctr'] = 'ctr';
         $columns['date'] = 'date';
         return $columns;
     }
@@ -66,6 +65,22 @@ class ADWPT_Ad {
             'show_in_menu' => false,
             'show_in_rest' => true,
             'capability_type' => 'post',
+            'capabilities' => [
+                'edit_post' => 'adwpt_manage',
+                'read_post' => 'adwpt_manage',
+                'delete_post' => 'adwpt_manage',
+                'edit_posts' => 'adwpt_manage',
+                'edit_others_posts' => 'adwpt_manage',
+                'publish_posts' => 'adwpt_manage',
+                'read_private_posts' => 'adwpt_manage',
+                'delete_posts' => 'adwpt_manage',
+                'delete_private_posts' => 'adwpt_manage',
+                'delete_published_posts' => 'adwpt_manage',
+                'delete_others_posts' => 'adwpt_manage',
+                'edit_private_posts' => 'adwpt_manage',
+                'edit_published_posts' => 'adwpt_manage',
+                'create_posts' => 'adwpt_manage',
+            ],
             'hierarchical' => false,
             'supports' => ['title'],
             'has_archive' => false,
@@ -87,9 +102,12 @@ class ADWPT_Ad {
         // Build new column structure
         $new_columns = [];
         $new_columns['cb'] = $columns['cb'];
+        $new_columns['preview'] = __('Aperçu', 'adwptracker');
         $new_columns['ad_name'] = __('Ad Name', 'adwptracker');
+        $new_columns['shortcode'] = __('Shortcode', 'adwptracker');
         $new_columns['type'] = __('Type', 'adwptracker');
         $new_columns['zone'] = __('Zone', 'adwptracker');
+        $new_columns['device'] = __('Appareil', 'adwptracker');
         $new_columns['status'] = __('Status', 'adwptracker');
         $new_columns['impressions'] = __('Impressions', 'adwptracker');
         $new_columns['clicks'] = __('Clicks', 'adwptracker');
@@ -104,6 +122,15 @@ class ADWPT_Ad {
      */
     public function render_custom_columns($column, $post_id) {
         switch ($column) {
+            case 'preview':
+                $image_url = get_post_meta($post_id, '_adwpt_image_url', true);
+                if ($image_url) {
+                    echo '<img src="' . esc_url($image_url) . '" alt="" style="width: 56px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb;">';
+                } else {
+                    echo '<span style="color: #9ca3af;">—</span>';
+                }
+                break;
+
             case 'ad_name':
                 $title = get_the_title($post_id);
                 $edit_link = get_edit_post_link($post_id);
@@ -112,6 +139,11 @@ class ADWPT_Ad {
                 echo '<span class="edit"><a href="' . esc_url($edit_link) . '">' . __('Edit', 'adwptracker') . '</a> | </span>';
                 echo '<span class="trash"><a href="' . get_delete_post_link($post_id) . '">' . __('Trash', 'adwptracker') . '</a></span>';
                 echo '</div>';
+                break;
+
+            case 'shortcode':
+                $shortcode = '[adwptracker_ad id="' . $post_id . '"]';
+                echo '<code style="cursor: pointer;" title="' . esc_attr__('Cliquer pour copier', 'adwptracker') . '">' . esc_html($shortcode) . '</code>';
                 break;
             
             case 'type':
@@ -146,14 +178,33 @@ class ADWPT_Ad {
                     echo '-';
                 }
                 break;
+
+            case 'device':
+                $show_on_mobile_meta = get_post_meta($post_id, '_adwpt_show_on_mobile', true);
+                $show_on_desktop_meta = get_post_meta($post_id, '_adwpt_show_on_desktop', true);
+                $legacy_device = get_post_meta($post_id, '_adwpt_device', true);
+                $show_on_mobile = $show_on_mobile_meta !== '0';
+                $show_on_desktop = $show_on_desktop_meta !== '0';
+
+                if ($show_on_mobile_meta === '' && $show_on_desktop_meta === '' && $legacy_device) {
+                    $show_on_mobile = in_array($legacy_device, ['all', 'mobile', 'tablet'], true);
+                    $show_on_desktop = in_array($legacy_device, ['all', 'desktop'], true);
+                }
+
+                if ($show_on_mobile && $show_on_desktop) {
+                    echo esc_html__('Tous', 'adwptracker');
+                } elseif ($show_on_desktop) {
+                    echo esc_html__('Desktop', 'adwptracker');
+                } elseif ($show_on_mobile) {
+                    echo esc_html__('Mobile/Tablette', 'adwptracker');
+                } else {
+                    echo '<span style="color: #991b1b;">' . esc_html__('Masquée', 'adwptracker') . '</span>';
+                }
+                break;
                 
             case 'status':
-                $status = get_post_meta($post_id, '_adwpt_status', true) ?: 'active';
-                $is_active = ($status === 'active');
-                $bg_color = $is_active ? '#d4edda' : '#f8d7da';
-                $text_color = $is_active ? '#155724' : '#721c24';
-                $label = $is_active ? __('Active', 'adwptracker') : __('Inactive', 'adwptracker');
-                echo '<span style="display: inline-block; padding: 3px 10px; border-radius: 3px; font-size: 12px; font-weight: 600; background: ' . $bg_color . '; color: ' . $text_color . '; white-space: nowrap;">' . esc_html($label) . '</span>';
+                $status_data = $this->get_display_status($post_id);
+                echo '<span class="adwpt-badge ' . esc_attr($status_data['class']) . '">' . esc_html($status_data['label']) . '</span>';
                 break;
                 
             case 'impressions':
@@ -192,7 +243,7 @@ class ADWPT_Ad {
      * Add duplicate link to row actions
      */
     public function add_duplicate_action($actions, $post) {
-        if ($post->post_type === 'adwpt_ad' && current_user_can('edit_posts')) {
+        if ($post->post_type === 'adwpt_ad' && current_user_can('edit_post', $post->ID)) {
             $duplicate_url = wp_nonce_url(
                 admin_url('admin.php?action=duplicate_ad&post=' . $post->ID),
                 'duplicate_ad_' . $post->ID
@@ -201,9 +252,99 @@ class ADWPT_Ad {
             $actions['duplicate'] = '<a href="' . esc_url($duplicate_url) . '" title="' . 
                 esc_attr__('Duplicate this ad', 'adwptracker') . '" style="color: #2271b1;">' . 
                 '🔄 ' . __('Duplicate', 'adwptracker') . '</a>';
+
+            $status = get_post_meta($post->ID, '_adwpt_status', true) ?: 'active';
+            $toggle_url = wp_nonce_url(
+                admin_url('admin.php?action=toggle_ad_status&post=' . $post->ID),
+                'toggle_ad_status_' . $post->ID
+            );
+            $actions['toggle_status'] = '<a href="' . esc_url($toggle_url) . '">' . esc_html($status === 'active' ? __('Mettre en pause', 'adwptracker') : __('Activer', 'adwptracker')) . '</a>';
+            $actions['statistics'] = '<a href="' . esc_url(admin_url('admin.php?page=adwptracker-stats')) . '">' . esc_html__('Statistiques', 'adwptracker') . '</a>';
         }
         
         return $actions;
+    }
+
+    public function add_status_views($views) {
+        $base_url = admin_url('edit.php?post_type=adwpt_ad');
+        $views['adwpt_active'] = '<a href="' . esc_url(add_query_arg('adwpt_status_filter', 'active', $base_url)) . '">' . esc_html__('Actives', 'adwptracker') . '</a>';
+        $views['adwpt_paused'] = '<a href="' . esc_url(add_query_arg('adwpt_status_filter', 'paused', $base_url)) . '">' . esc_html__('En pause', 'adwptracker') . '</a>';
+        $views['adwpt_expired'] = '<a href="' . esc_url(add_query_arg('adwpt_status_filter', 'expired', $base_url)) . '">' . esc_html__('Expirées', 'adwptracker') . '</a>';
+        return $views;
+    }
+
+    public function filter_admin_ads($query) {
+        if (!is_admin() || !$query->is_main_query() || $query->get('post_type') !== 'adwpt_ad') {
+            return;
+        }
+
+        $filter = isset($_GET['adwpt_status_filter']) ? sanitize_key($_GET['adwpt_status_filter']) : '';
+        $meta_query = (array) $query->get('meta_query');
+
+        if ($filter === 'active') {
+            $meta_query[] = [
+                'key' => '_adwpt_status',
+                'value' => 'active',
+                'compare' => '=',
+            ];
+        } elseif ($filter === 'paused') {
+            $meta_query[] = [
+                'key' => '_adwpt_status',
+                'value' => 'inactive',
+                'compare' => '=',
+            ];
+        } elseif ($filter === 'expired') {
+            $meta_query[] = [
+                'key' => '_adwpt_end_date',
+                'value' => current_time('Y-m-d'),
+                'compare' => '<',
+                'type' => 'DATE',
+            ];
+        }
+
+        if ($meta_query) {
+            $query->set('meta_query', $meta_query);
+        }
+    }
+
+    private function get_display_status($post_id) {
+        $post = get_post($post_id);
+        if ($post && $post->post_status === 'draft') {
+            return ['label' => __('Brouillon', 'adwptracker'), 'class' => 'adwpt-badge-draft'];
+        }
+
+        $end_date = get_post_meta($post_id, '_adwpt_end_date', true);
+        if ($end_date && $end_date < current_time('Y-m-d')) {
+            return ['label' => __('Expirée', 'adwptracker'), 'class' => 'adwpt-badge-expired'];
+        }
+
+        $status = get_post_meta($post_id, '_adwpt_status', true) ?: 'active';
+        if ($status !== 'active') {
+            return ['label' => __('En pause', 'adwptracker'), 'class' => 'adwpt-badge-paused'];
+        }
+
+        return ['label' => __('Active', 'adwptracker'), 'class' => 'adwpt-badge-active'];
+    }
+
+    public function toggle_ad_status() {
+        if (!isset($_GET['post'])) {
+            wp_die(__('Aucune annonce sélectionnée.', 'adwptracker'));
+        }
+
+        $post_id = absint($_GET['post']);
+        if (!wp_verify_nonce($_GET['_wpnonce'], 'toggle_ad_status_' . $post_id)) {
+            wp_die(__('Security check failed!', 'adwptracker'));
+        }
+
+        if (!current_user_can('edit_post', $post_id)) {
+            wp_die(__('Vous n’avez pas la permission de modifier cette annonce.', 'adwptracker'));
+        }
+
+        $status = get_post_meta($post_id, '_adwpt_status', true) ?: 'active';
+        update_post_meta($post_id, '_adwpt_status', $status === 'active' ? 'inactive' : 'active');
+
+        wp_safe_redirect(admin_url('edit.php?post_type=adwpt_ad'));
+        exit;
     }
     
     /**
@@ -221,7 +362,7 @@ class ADWPT_Ad {
             wp_die(__('Security check failed!', 'adwptracker'));
         }
         
-        if (!current_user_can('edit_posts')) {
+        if (!current_user_can('edit_post', $post_id)) {
             wp_die(__('You do not have permission to duplicate ads.', 'adwptracker'));
         }
         

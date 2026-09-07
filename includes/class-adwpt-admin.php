@@ -29,10 +29,6 @@ class ADWPT_Admin {
         add_filter('redirect_post_location', [$this, 'redirect_after_publish'], 10, 2);
         add_action('admin_notices', [$this, 'show_publish_notice']);
         
-        // Custom columns for ads
-        add_filter('manage_adwpt_ad_posts_columns', [$this, 'set_ad_columns']);
-        add_action('manage_adwpt_ad_posts_custom_column', [$this, 'render_ad_columns'], 10, 2);
-        
         // Export CSV handler
         add_action('admin_init', [$this, 'handle_export_csv']);
     }
@@ -42,6 +38,51 @@ class ADWPT_Admin {
      */
     private function get_plugin_capability() {
         return 'adwpt_manage';
+    }
+
+    /**
+     * Normalize a CSS dimension. Numeric values are stored as pixels.
+     */
+    private function normalize_dimension($value, $default = '') {
+        $value = strtolower(trim((string) $value));
+
+        if ($value === '') {
+            return $default;
+        }
+
+        if ($value === 'auto') {
+            return 'auto';
+        }
+
+        if (preg_match('/^\d+(\.\d+)?$/', $value)) {
+            return $value . 'px';
+        }
+
+        if (preg_match('/^\d+(\.\d+)?(px|%|vw|vh|rem|em)$/', $value)) {
+            return $value;
+        }
+
+        return $default;
+    }
+
+    /**
+     * Normalize width/height and support shorthand format like "970x100".
+     */
+    private function normalize_zone_dimensions($raw_width, $raw_height) {
+        $width = trim((string) $raw_width);
+        $height = trim((string) $raw_height);
+
+        if (preg_match('/^\s*(\d+(\.\d+)?)\s*x\s*(\d+(\.\d+)?)\s*$/i', $width, $m)) {
+            $width = $m[1] . 'px';
+            if ($height === '' || strtolower($height) === 'auto') {
+                $height = $m[3] . 'px';
+            }
+        }
+
+        return [
+            $this->normalize_dimension($width, ''),
+            $this->normalize_dimension($height, 'auto'),
+        ];
     }
 
     /**
@@ -304,144 +345,65 @@ class ADWPT_Admin {
             30
         );
         
-        // Dashboard submenu
         add_submenu_page(
             'adwptracker',
-            __('Dashboard', 'adwptracker'),
-            __('📊 Dashboard', 'adwptracker'),
+            __('Tableau de bord', 'adwptracker'),
+            __('Tableau de bord', 'adwptracker'),
             $capability,
             'adwptracker',
             [$this, 'render_dashboard']
         );
-        
-        // === GESTION DES CONTENUS ===
-        
-        // Liste des Annonces & Zones (shortcodes centralisés)
+
         add_submenu_page(
             'adwptracker',
-            __('Liste des Annonces & Zones', 'adwptracker'),
-            __('📋 Liste des Annonces & Zones', 'adwptracker'),
-            $capability,
-            'adwptracker-liste',
-            [$this, 'render_liste_page']
-        );
-        
-        // Separator
-        add_submenu_page(
-            'adwptracker',
-            '',
-            '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
-            $capability,
-            '#'
-        );
-        
-        // Ads management
-        add_submenu_page(
-            'adwptracker',
-            __('Annonces', 'adwptracker'),
-            __('📢 Annonces', 'adwptracker'),
+            __('Publicités', 'adwptracker'),
+            __('Publicités', 'adwptracker'),
             $capability,
             'edit.php?post_type=adwpt_ad'
         );
-        
-        // Add new ad
-        add_submenu_page(
-            'adwptracker',
-            __('Nouvelle Annonce', 'adwptracker'),
-            __('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✨ Nouvelle Annonce', 'adwptracker'),
-            $capability,
-            'post-new.php?post_type=adwpt_ad'
-        );
-        
-        // Zones management
-        add_submenu_page(
-            'adwptracker',
-            __('Zones', 'adwptracker'),
-            __('🎯 Zones', 'adwptracker'),
-            $capability,
-            'edit.php?post_type=adwpt_zone'
-        );
-        
-        // Add new zone
-        add_submenu_page(
-            'adwptracker',
-            __('Nouvelle Zone', 'adwptracker'),
-            __('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✨ Nouvelle Zone', 'adwptracker'),
-            $capability,
-            'post-new.php?post_type=adwpt_zone'
-        );
-        
-        // === STATISTIQUES ===
-        
-        // Separator
-        add_submenu_page(
-            'adwptracker',
-            '',
-            '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
-            $capability,
-            '#'
-        );
-        
-        // Statistics
+
         add_submenu_page(
             'adwptracker',
             __('Statistiques', 'adwptracker'),
-            __('📈 Statistiques', 'adwptracker'),
+            __('Statistiques', 'adwptracker'),
             $capability,
             'adwptracker-stats',
             [$this, 'render_stats_page']
         );
-        
-        // === CONFIGURATION ===
-        
-        // Separator
+
         add_submenu_page(
             'adwptracker',
-            '',
-            '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
+            __('Zones d’affichage', 'adwptracker'),
+            __('Zones d’affichage', 'adwptracker'),
             $capability,
-            '#'
+            'edit.php?post_type=adwpt_zone'
         );
-        
-        // Settings
+
         add_submenu_page(
             'adwptracker',
             __('Paramètres', 'adwptracker'),
-            __('⚙️ Paramètres', 'adwptracker'),
+            __('Paramètres', 'adwptracker'),
             $capability,
             'adwptracker-settings',
             [$this, 'render_settings_page']
         );
-        
-        // === AIDE ===
-        
-        // Separator
+
         add_submenu_page(
             'adwptracker',
-            '',
-            '<span style="display:block; margin: 5px 0; border-top: 1px solid #ddd;"></span>',
+            __('Outils', 'adwptracker'),
+            __('Outils', 'adwptracker'),
             $capability,
-            '#'
+            'adwptracker-tools',
+            [$this, 'render_tools_page']
         );
-        
-        // Documentation
+
         add_submenu_page(
             'adwptracker',
-            __('Documentation', 'adwptracker'),
-            __('📖 Documentation', 'adwptracker'),
+            __('Aide', 'adwptracker'),
+            __('Aide', 'adwptracker'),
             $capability,
             'adwptracker-docs',
             [$this, 'render_docs_page']
-        );
-        
-        // Support
-        add_submenu_page(
-            'adwptracker',
-            __('Support', 'adwptracker'),
-            __('💬 Support', 'adwptracker'),
-            $capability,
-            'adwptracker-support',
-            [$this, 'render_support_page']
         );
     }
     
@@ -464,6 +426,13 @@ class ADWPT_Admin {
             'adwptracker-admin',
             ADWPT_PLUGIN_URL . 'assets/css/admin.css',
             [],
+            ADWPT_VERSION
+        );
+
+        wp_enqueue_style(
+            'adwptracker-admin-modern',
+            ADWPT_PLUGIN_URL . 'assets/css/admin-modern.css',
+            ['adwptracker-admin'],
             ADWPT_VERSION
         );
         
@@ -518,442 +487,10 @@ class ADWPT_Admin {
         if (!class_exists('ADWPT_Dashboard')) {
             require_once ADWPT_PLUGIN_DIR . 'includes/class-adwpt-dashboard.php';
         }
+
         ADWPT_Dashboard::render();
-        return;
-        
-        if (!class_exists('ADWPT_Stats')) {
-            echo '<div class="wrap"><h1>Erreur</h1><p>La classe ADWPT_Stats n\'est pas chargée.</p></div>';
-            return;
-        }
-        
-        $stats = ADWPT_Stats::get_instance();
-        $summary = $stats->get_summary_stats();
-        
-        // Get current page
-        $current_page = isset($_GET['page']) ? $_GET['page'] : 'adwptracker';
-        
-        ?>
-        <!-- Horizontal Menu -->
-        <div class="adwpt-horizontal-menu">
-            <div class="adwpt-menu-container">
-                <div class="adwpt-menu-logo">
-                    <span class="adwpt-menu-logo-icon">📊</span>
-                    <span>AdWPtracker</span>
-                </div>
-                
-                <nav class="adwpt-menu-nav">
-                    <a href="<?php echo admin_url('admin.php?page=adwptracker'); ?>" class="adwpt-menu-item <?php echo $current_page === 'adwptracker' ? 'active' : ''; ?>">
-                        📊 Dashboard
-                    </a>
-                    <a href="<?php echo admin_url('edit.php?post_type=adwpt_ad'); ?>" class="adwpt-menu-item">
-                        📢 Annonces
-                    </a>
-                    <a href="<?php echo admin_url('edit.php?post_type=adwpt_zone'); ?>" class="adwpt-menu-item">
-                        🎯 Zones
-                    </a>
-                    <a href="<?php echo admin_url('admin.php?page=adwptracker-stats'); ?>" class="adwpt-menu-item">
-                        📈 Statistiques
-                    </a>
-                    <a href="<?php echo admin_url('admin.php?page=adwptracker-settings'); ?>" class="adwpt-menu-item">
-                        ⚙️ Paramètres
-                    </a>
-                </nav>
-                
-                <div class="adwpt-menu-actions">
-                    <a href="<?php echo admin_url('post-new.php?post_type=adwpt_ad'); ?>" class="adwpt-btn-primary">
-                        + Nouvelle Annonce
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Dashboard Content -->
-        <div class="adwpt-dashboard-wrap">
-            <div class="adwpt-dashboard-container">
-                
-                <!-- Header with Gradient -->
-                <div class="adwpt-dashboard-header-premium">
-                    <div class="adwpt-header-content">
-                        <div class="adwpt-header-text">
-                            <h1 class="adwpt-dashboard-title-premium">
-                                <?php esc_html_e('Welcome Back', 'adwptracker'); ?> 👋
-                            </h1>
-                            <p class="adwpt-dashboard-subtitle-premium">
-                                <?php esc_html_e('Track your advertising performance in real-time', 'adwptracker'); ?>
-                            </p>
-                        </div>
-                        <div class="adwpt-header-actions">
-                            <a href="<?php echo admin_url('post-new.php?post_type=adwpt_ad'); ?>" class="adwpt-btn-gradient">
-                                <span class="adwpt-btn-icon">✨</span>
-                                <?php esc_html_e('Create New Ad', 'adwptracker'); ?>
-                            </a>
-                            <a href="<?php echo admin_url('admin.php?page=adwptracker-stats'); ?>" class="adwpt-btn-outline">
-                                <span class="adwpt-btn-icon">📊</span>
-                                <?php esc_html_e('Full Report', 'adwptracker'); ?>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Stats Grid Premium -->
-                <div class="adwpt-stats-grid-premium">
-                    <!-- Impressions Card -->
-                    <div class="adwpt-stat-card-premium impressions-card">
-                        <div class="adwpt-stat-icon-large">
-                            <div class="adwpt-icon-circle blue-gradient">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="adwpt-stat-content">
-                            <span class="adwpt-stat-label-premium"><?php esc_html_e('Total Impressions', 'adwptracker'); ?></span>
-                            <div class="adwpt-stat-value-premium"><?php echo number_format_i18n($summary['total_impressions']); ?></div>
-                            <div class="adwpt-stat-trend positive">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                    <path d="M8 3.5l4 4H9v5H7v-5H4l4-4z"/>
-                                </svg>
-                                <span>+12.5%</span>
-                                <span class="trend-period"><?php esc_html_e('vs last week', 'adwptracker'); ?></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Clicks Card -->
-                    <div class="adwpt-stat-card-premium clicks-card">
-                        <div class="adwpt-stat-icon-large">
-                            <div class="adwpt-icon-circle green-gradient">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M9 11l3 3L22 4"/>
-                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="adwpt-stat-content">
-                            <span class="adwpt-stat-label-premium"><?php esc_html_e('Total Clicks', 'adwptracker'); ?></span>
-                            <div class="adwpt-stat-value-premium"><?php echo number_format_i18n($summary['total_clicks']); ?></div>
-                            <div class="adwpt-stat-trend positive">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                    <path d="M8 3.5l4 4H9v5H7v-5H4l4-4z"/>
-                                </svg>
-                                <span>+8.3%</span>
-                                <span class="trend-period"><?php esc_html_e('vs last week', 'adwptracker'); ?></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- CTR Card -->
-                    <div class="adwpt-stat-card-premium ctr-card">
-                        <div class="adwpt-stat-icon-large">
-                            <div class="adwpt-icon-circle purple-gradient">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="adwpt-stat-content">
-                            <span class="adwpt-stat-label-premium"><?php esc_html_e('Average CTR', 'adwptracker'); ?></span>
-                            <div class="adwpt-stat-value-premium"><?php echo number_format($summary['average_ctr'], 2); ?>%</div>
-                            <div class="adwpt-stat-trend neutral">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                    <path d="M2 8h12"/>
-                                </svg>
-                                <span>-0.3%</span>
-                                <span class="trend-period"><?php esc_html_e('vs last week', 'adwptracker'); ?></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Active Ads Card -->
-                    <div class="adwpt-stat-card-premium active-ads-card">
-                        <div class="adwpt-stat-icon-large">
-                            <div class="adwpt-icon-circle orange-gradient">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <polyline points="12 6 12 12 16 14"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="adwpt-stat-content">
-                            <span class="adwpt-stat-label-premium"><?php esc_html_e('Active Ads', 'adwptracker'); ?></span>
-                            <div class="adwpt-stat-value-premium"><?php echo number_format_i18n($summary['active_ads']); ?></div>
-                            <div class="adwpt-stat-trend neutral">
-                                <span><?php 
-                                $total_ads = wp_count_posts('adwpt_ad');
-                                printf(esc_html__('of %s total', 'adwptracker'), $total_ads->publish);
-                                ?></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Content Grid -->
-                <div class="adwpt-content-grid">
-                    
-                    <!-- Performance Chart -->
-                    <div class="adwpt-card">
-                        <div class="adwpt-card-header">
-                            <h2 class="adwpt-card-title">Performance (7 derniers jours)</h2>
-                            <a href="<?php echo admin_url('admin.php?page=adwptracker-stats'); ?>" class="adwpt-card-action">
-                                Voir tout →
-                            </a>
-                        </div>
-                        <div class="adwpt-chart-container">
-                            <canvas id="adwptPerformanceChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Sidebar -->
-                    <div style="display: flex; flex-direction: column; gap: 24px;">
-                        
-                        <!-- Top Ads -->
-                        <div class="adwpt-card">
-                            <div class="adwpt-card-header">
-                                <h2 class="adwpt-card-title">Top Annonces</h2>
-                                <a href="<?php echo admin_url('edit.php?post_type=adwpt_ad'); ?>" class="adwpt-card-action">
-                                    Voir tout →
-                                </a>
-                            </div>
-                            <div class="adwpt-top-list">
-                                <?php
-                                $top_ads = get_posts([
-                                    'post_type' => 'adwpt_ad',
-                                    'posts_per_page' => 5,
-                                    'post_status' => 'publish',
-                                    'meta_query' => [
-                                        [
-                                            'key' => '_adwpt_status',
-                                            'value' => 'active',
-                                            'compare' => '='
-                                        ]
-                                    ]
-                                ]);
-                                
-                                if (!empty($top_ads)) {
-                                    $rank = 1;
-                                    foreach ($top_ads as $ad) {
-                                        $ad_stats = $stats->get_ad_stats($ad->ID);
-                                        $impressions = 0;
-                                        $clicks = 0;
-                                        
-                                        if ($ad_stats && is_array($ad_stats)) {
-                                            $impressions = isset($ad_stats['impressions']) ? (int)$ad_stats['impressions'] : 0;
-                                            $clicks = isset($ad_stats['clicks']) ? (int)$ad_stats['clicks'] : 0;
-                                        } elseif ($ad_stats && is_object($ad_stats)) {
-                                            $impressions = isset($ad_stats->impressions) ? (int)$ad_stats->impressions : 0;
-                                            $clicks = isset($ad_stats->clicks) ? (int)$ad_stats->clicks : 0;
-                                        }
-                                        ?>
-                                        <div class="adwpt-top-item">
-                                            <div class="adwpt-top-rank"><?php echo $rank; ?></div>
-                                            <div class="adwpt-top-info">
-                                                <p class="adwpt-top-name"><?php echo esc_html($ad->post_title); ?></p>
-                                                <p class="adwpt-top-meta"><?php echo number_format_i18n($impressions); ?> impressions</p>
-                                            </div>
-                                            <div class="adwpt-top-value">
-                                                <?php echo number_format_i18n($clicks); ?>
-                                                <span style="font-size: 12px; color: #6B7280; font-weight: 400;">clics</span>
-                                            </div>
-                                        </div>
-                                        <?php
-                                        $rank++;
-                                    }
-                                } else {
-                                    echo '<p style="color: #6B7280; text-align: center; padding: 20px 0;">Aucune annonce active</p>';
-                                }
-                                ?>
-                            </div>
-                        </div>
-                        
-                        <!-- Quick Actions -->
-                        <div class="adwpt-card">
-                            <div class="adwpt-card-header">
-                                <h2 class="adwpt-card-title">Actions Rapides</h2>
-                            </div>
-                            <div class="adwpt-quick-actions">
-                                <a href="<?php echo admin_url('post-new.php?post_type=adwpt_ad'); ?>" class="adwpt-quick-action">
-                                    <div class="adwpt-quick-action-icon">+</div>
-                                    <div class="adwpt-quick-action-content">
-                                        <p class="adwpt-quick-action-title">Nouvelle Annonce</p>
-                                        <p class="adwpt-quick-action-desc">Créer une nouvelle publicité</p>
-                                    </div>
-                                </a>
-                                
-                                <a href="<?php echo admin_url('post-new.php?post_type=adwpt_zone'); ?>" class="adwpt-quick-action">
-                                    <div class="adwpt-quick-action-icon">🎯</div>
-                                    <div class="adwpt-quick-action-content">
-                                        <p class="adwpt-quick-action-title">Nouvelle Zone</p>
-                                        <p class="adwpt-quick-action-desc">Définir un emplacement</p>
-                                    </div>
-                                </a>
-                                
-                                <a href="<?php echo admin_url('admin.php?page=adwptracker-stats'); ?>" class="adwpt-quick-action">
-                                    <div class="adwpt-quick-action-icon">📊</div>
-                                    <div class="adwpt-quick-action-content">
-                                        <p class="adwpt-quick-action-title">Voir les Stats</p>
-                                        <p class="adwpt-quick-action-desc">Rapport détaillé</p>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-        
-        <?php
-        // Get last 7 days stats
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'adwptracker_stats';
-        
-        $last_7_days = [];
-        $impressions_data = [];
-        $clicks_data = [];
-        
-        for ($i = 6; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-$i days"));
-            $day_name = date('D', strtotime("-$i days"));
-            
-            // Translate day names to French
-            $day_fr = [
-                'Mon' => 'Lun',
-                'Tue' => 'Mar', 
-                'Wed' => 'Mer',
-                'Thu' => 'Jeu',
-                'Fri' => 'Ven',
-                'Sat' => 'Sam',
-                'Sun' => 'Dim'
-            ];
-            
-            $last_7_days[] = isset($day_fr[$day_name]) ? $day_fr[$day_name] : $day_name;
-            
-            // Get impressions for this day
-            $impressions = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table_name} 
-                WHERE type = 'impression' 
-                AND DATE(created_at) = %s",
-                $date
-            ));
-            $impressions_data[] = (int)$impressions;
-            
-            // Get clicks for this day
-            $clicks = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table_name} 
-                WHERE type = 'click' 
-                AND DATE(created_at) = %s",
-                $date
-            ));
-            $clicks_data[] = (int)$clicks;
-        }
-        ?>
-        
-        <!-- Chart.js Script -->
-        <script>
-        jQuery(document).ready(function($) {
-            const ctx = document.getElementById('adwptPerformanceChart');
-            if (ctx) {
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: <?php echo json_encode($last_7_days); ?>,
-                        datasets: [{
-                            label: 'Impressions',
-                            data: <?php echo json_encode($impressions_data); ?>,
-                            borderColor: '#0066FF',
-                            backgroundColor: 'rgba(0, 102, 255, 0.05)',
-                            tension: 0.4,
-                            fill: true,
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        }, {
-                            label: 'Clicks',
-                            data: <?php echo json_encode($clicks_data); ?>,
-                            borderColor: '#00D924',
-                            backgroundColor: 'rgba(0, 217, 36, 0.05)',
-                            tension: 0.4,
-                            fill: true,
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top',
-                                align: 'end',
-                                labels: {
-                                    boxWidth: 12,
-                                    boxHeight: 12,
-                                    borderRadius: 6,
-                                    useBorderRadius: true,
-                                    padding: 15,
-                                    font: {
-                                        size: 12,
-                                        weight: '600'
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: '#1A1A1A',
-                                titleColor: '#fff',
-                                bodyColor: '#fff',
-                                borderColor: '#E5E7EB',
-                                borderWidth: 1,
-                                padding: 12,
-                                boxPadding: 6,
-                                usePointStyle: true,
-                                bodyFont: {
-                                    size: 13
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: '#F7F9FC',
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    color: '#6B7280'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false,
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    color: '#6B7280'
-                                }
-                            }
-                        },
-                        interaction: {
-                            intersect: false,
-                            mode: 'index'
-                        }
-                    }
-                });
-            }
-        });
-        </script>
-        <?php
     }
-    
+
     /**
      * Render stats page
      */
@@ -962,117 +499,152 @@ class ADWPT_Admin {
             echo '<div class="wrap"><h1>Erreur</h1><p>La classe ADWPT_Stats n\'est pas chargée.</p></div>';
             return;
         }
-        
+
+        global $wpdb;
+
+        $range = isset($_GET['range']) ? absint($_GET['range']) : 30;
+        if (!in_array($range, [7, 30, 90, 365], true)) {
+            $range = 30;
+        }
+
         $stats = ADWPT_Stats::get_instance();
-        $all_stats = $stats->get_stats();
         $summary = $stats->get_summary_stats();
-        
+        $all_stats = $stats->get_stats();
+        $stats_table = $wpdb->prefix . 'adwptracker_stats';
+        $since_sql = gmdate('Y-m-d H:i:s', strtotime('-' . $range . ' days'));
+
+        $daily_rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT DATE(created_at) AS stat_date,
+                SUM(CASE WHEN type = 'impression' THEN 1 ELSE 0 END) AS impressions,
+                SUM(CASE WHEN type = 'click' THEN 1 ELSE 0 END) AS clicks
+            FROM {$stats_table}
+            WHERE created_at >= %s
+            GROUP BY DATE(created_at)
+            ORDER BY stat_date ASC",
+            $since_sql
+        ), ARRAY_A);
+
+        $device_rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT device, COUNT(*) AS total
+            FROM {$stats_table}
+            WHERE created_at >= %s AND type = 'impression'
+            GROUP BY device
+            ORDER BY total DESC",
+            $since_sql
+        ), ARRAY_A);
+
+        $type_rows = $wpdb->get_results("SELECT pm.meta_value AS ad_type, COUNT(*) AS total
+            FROM {$wpdb->posts} p
+            LEFT JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_adwpt_type'
+            WHERE p.post_type = 'adwpt_ad' AND p.post_status IN ('publish', 'draft')
+            GROUP BY pm.meta_value", ARRAY_A);
+
+        $chart_labels = array_map(function($row) { return $row['stat_date']; }, $daily_rows);
+        $chart_impressions = array_map(function($row) { return (int) $row['impressions']; }, $daily_rows);
+        $chart_clicks = array_map(function($row) { return (int) $row['clicks']; }, $daily_rows);
         ?>
         <div class="wrap">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-                <h1 style="margin: 0;"><?php esc_html_e('Detailed Statistics', 'adwptracker'); ?></h1>
-                <a href="<?php echo wp_nonce_url(admin_url('admin.php?adwptracker_export=csv'), 'adwptracker_export_csv'); ?>" 
-                   class="button button-primary" 
-                   style="background: #00D924; border-color: #00D924; display: inline-flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">📥</span>
-                    <?php esc_html_e('Export CSV', 'adwptracker'); ?>
-                </a>
+            <div class="adwpt-admin">
+                <div class="adwpt-page-header">
+                    <div>
+                        <h1 class="adwpt-page-title"><?php esc_html_e('Statistiques', 'adwptracker'); ?></h1>
+                        <p class="adwpt-page-subtitle"><?php esc_html_e('Analysez les performances de vos publicités', 'adwptracker'); ?></p>
+                    </div>
+                    <form method="get" class="adwpt-toolbar">
+                        <input type="hidden" name="page" value="adwptracker-stats">
+                        <select name="range" onchange="this.form.submit()">
+                            <option value="7" <?php selected($range, 7); ?>>7 derniers jours</option>
+                            <option value="30" <?php selected($range, 30); ?>>30 derniers jours</option>
+                            <option value="90" <?php selected($range, 90); ?>>90 derniers jours</option>
+                            <option value="365" <?php selected($range, 365); ?>>12 derniers mois</option>
+                        </select>
+                        <a class="adwpt-button adwpt-button-primary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?adwptracker_export=csv'), 'adwptracker_export_csv')); ?>"><?php esc_html_e('Exporter CSV', 'adwptracker'); ?></a>
+                    </form>
+                </div>
+
+                <div class="adwpt-tabs">
+                    <button type="button" class="adwpt-tab active"><?php esc_html_e('Vue d\'ensemble', 'adwptracker'); ?></button>
+                    <button type="button" class="adwpt-tab"><?php esc_html_e('Par publicité', 'adwptracker'); ?></button>
+                    <button type="button" class="adwpt-tab"><?php esc_html_e('Par zone', 'adwptracker'); ?></button>
+                    <button type="button" class="adwpt-tab"><?php esc_html_e('Par jour', 'adwptracker'); ?></button>
+                    <button type="button" class="adwpt-tab"><?php esc_html_e('Par type', 'adwptracker'); ?></button>
+                </div>
+
+                <div class="adwpt-grid adwpt-grid-4">
+                    <div class="adwpt-card"><div class="adwpt-kpi-label"><?php esc_html_e('Impressions', 'adwptracker'); ?></div><div class="adwpt-kpi-value"><?php echo esc_html(number_format_i18n($summary['total_impressions'])); ?></div></div>
+                    <div class="adwpt-card"><div class="adwpt-kpi-label"><?php esc_html_e('Clics', 'adwptracker'); ?></div><div class="adwpt-kpi-value"><?php echo esc_html(number_format_i18n($summary['total_clicks'])); ?></div></div>
+                    <div class="adwpt-card"><div class="adwpt-kpi-label"><?php esc_html_e('CTR', 'adwptracker'); ?></div><div class="adwpt-kpi-value"><?php echo esc_html(number_format_i18n($summary['average_ctr'], 2)); ?>%</div></div>
+                    <div class="adwpt-card"><div class="adwpt-kpi-label"><?php esc_html_e('Publicités actives', 'adwptracker'); ?></div><div class="adwpt-kpi-value"><?php echo esc_html(number_format_i18n($summary['active_ads'])); ?></div></div>
+                </div>
+
+                <div class="adwpt-grid adwpt-grid-2" style="margin-top:16px;">
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Évolution des impressions et clics', 'adwptracker'); ?></h2>
+                        <canvas id="adwptStatsPerformanceChart" height="150"></canvas>
+                    </div>
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Répartition par appareil', 'adwptracker'); ?></h2>
+                        <canvas id="adwptStatsDeviceChart" height="150"></canvas>
+                    </div>
+                </div>
+
+                <div class="adwpt-card" style="margin-top:16px;">
+                    <h2 class="adwpt-section-title"><?php esc_html_e('Statistiques par publicité', 'adwptracker'); ?></h2>
+                    <div class="adwpt-table-wrap">
+                        <table class="widefat striped">
+                            <thead><tr><th>ID</th><th><?php esc_html_e('Publicité', 'adwptracker'); ?></th><th><?php esc_html_e('Zone', 'adwptracker'); ?></th><th><?php esc_html_e('Impressions', 'adwptracker'); ?></th><th><?php esc_html_e('Clics', 'adwptracker'); ?></th><th>CTR</th></tr></thead>
+                            <tbody>
+                                <?php if ($all_stats): ?>
+                                    <?php foreach ($all_stats as $stat): ?>
+                                        <tr>
+                                            <td><?php echo esc_html($stat['ad_id']); ?></td>
+                                            <td><a href="<?php echo esc_url(get_edit_post_link($stat['ad_id'])); ?>"><?php echo esc_html(get_the_title($stat['ad_id']) ?: __('Sans titre', 'adwptracker')); ?></a></td>
+                                            <td><?php echo $stat['zone_id'] ? '<a href="' . esc_url(get_edit_post_link($stat['zone_id'])) . '">' . esc_html(get_the_title($stat['zone_id'])) . '</a>' : esc_html__('Sans zone', 'adwptracker'); ?></td>
+                                            <td><?php echo esc_html(number_format_i18n($stat['impressions'])); ?></td>
+                                            <td><?php echo esc_html(number_format_i18n($stat['clicks'])); ?></td>
+                                            <td><?php echo esc_html(number_format_i18n($stat['ctr'], 2)); ?>%</td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr><td colspan="6"><?php esc_html_e('Aucune statistique disponible pour le moment.', 'adwptracker'); ?></td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <?php if ($type_rows): ?>
+                    <div class="adwpt-card" style="margin-top:16px;">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Répartition par type', 'adwptracker'); ?></h2>
+                        <div class="adwpt-table-wrap">
+                            <table class="widefat striped"><thead><tr><th><?php esc_html_e('Type', 'adwptracker'); ?></th><th><?php esc_html_e('Nombre', 'adwptracker'); ?></th></tr></thead><tbody>
+                                <?php foreach ($type_rows as $row): ?>
+                                    <tr><td><?php echo esc_html($row['ad_type'] ?: 'image'); ?></td><td><?php echo esc_html(number_format_i18n($row['total'])); ?></td></tr>
+                                <?php endforeach; ?>
+                            </tbody></table>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
-            
-            <!-- Summary Cards -->
-            <div class="adwpt-stats-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
-                <div style="background: #fff; padding: 15px; border: 1px solid #ccd0d4; border-radius: 4px;">
-                    <h3 style="margin: 0 0 10px; font-size: 13px; color: #646970;">Total Impressions</h3>
-                    <p style="font-size: 24px; font-weight: 600; margin: 0; color: #1d2327;"><?php echo number_format_i18n($summary['total_impressions']); ?></p>
-                </div>
-                <div style="background: #fff; padding: 15px; border: 1px solid #ccd0d4; border-radius: 4px;">
-                    <h3 style="margin: 0 0 10px; font-size: 13px; color: #646970;">Total Clics</h3>
-                    <p style="font-size: 24px; font-weight: 600; margin: 0; color: #1d2327;"><?php echo number_format_i18n($summary['total_clicks']); ?></p>
-                </div>
-                <div style="background: #fff; padding: 15px; border: 1px solid #ccd0d4; border-radius: 4px;">
-                    <h3 style="margin: 0 0 10px; font-size: 13px; color: #646970;">CTR Moyen</h3>
-                    <p style="font-size: 24px; font-weight: 600; margin: 0; color: #1d2327;"><?php echo number_format($summary['average_ctr'], 2); ?>%</p>
-                </div>
-            </div>
-            
-            <h2><?php esc_html_e('Statistics by Ad', 'adwptracker'); ?></h2>
-            
-            <table class="wp-list-table widefat fixed striped">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e('ID', 'adwptracker'); ?></th>
-                        <th><?php esc_html_e('Ad', 'adwptracker'); ?></th>
-                        <th><?php esc_html_e('Zone', 'adwptracker'); ?></th>
-                        <th><?php esc_html_e('Impressions', 'adwptracker'); ?></th>
-                        <th><?php esc_html_e('Clicks', 'adwptracker'); ?></th>
-                        <th><?php esc_html_e('CTR %', 'adwptracker'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($all_stats)): ?>
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 40px 20px;">
-                                <p style="font-size: 16px; color: #646970; margin: 0 0 10px;">
-                                    📊 <?php esc_html_e('No statistics available yet', 'adwptracker'); ?>
-                                </p>
-                                <p style="color: #999; margin: 0;">
-                                    <?php esc_html_e('Les statistiques apparaîtront dès que vos annonces commenceront à être affichées.', 'adwptracker'); ?>
-                                </p>
-                                <p style="margin: 15px 0 0;">
-                                    <a href="<?php echo admin_url('post-new.php?post_type=adwpt_zone'); ?>" class="button button-primary">
-                                        <?php esc_html_e('Create Zone', 'adwptracker'); ?>
-                                    </a>
-                                    <a href="<?php echo admin_url('post-new.php?post_type=adwpt_ad'); ?>" class="button button-primary">
-                                        <?php esc_html_e('Create Ad', 'adwptracker'); ?>
-                                    </a>
-                                </p>
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($all_stats as $stat): ?>
-                            <tr>
-                                <td><?php echo esc_html($stat['ad_id']); ?></td>
-                                <td>
-                                    <?php 
-                                    $ad_title = get_the_title($stat['ad_id']);
-                                    if ($ad_title) {
-                                        echo '<a href="' . get_edit_post_link($stat['ad_id']) . '">' . esc_html($ad_title) . '</a>';
-                                    } else {
-                                        echo esc_html__('Sans titre', 'adwptracker');
-                                    }
-                                    ?>
-                                </td>
-                                <td>
-                                    <?php 
-                                    $zone_title = get_the_title($stat['zone_id']);
-                                    if ($zone_title) {
-                                        echo '<a href="' . get_edit_post_link($stat['zone_id']) . '">' . esc_html($zone_title) . '</a>';
-                                    } else {
-                                        echo esc_html__('Sans zone', 'adwptracker');
-                                    }
-                                    ?>
-                                </td>
-                                <td><strong><?php echo number_format_i18n($stat['impressions']); ?></strong></td>
-                                <td><strong><?php echo number_format_i18n($stat['clicks']); ?></strong></td>
-                                <td><strong style="color: <?php echo $stat['ctr'] > 2 ? '#28a745' : '#666'; ?>"><?php echo number_format($stat['ctr'], 2); ?>%</strong></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-            
-            <?php if (!empty($all_stats)): ?>
-                <div style="margin-top: 20px; padding: 15px; background: #f0f6fc; border-left: 4px solid #2271b1; border-radius: 4px;">
-                    <p style="margin: 0; font-size: 13px;">
-                        💡 <strong>Astuce:</strong> Un bon CTR se situe généralement entre 2% et 5%. 
-                        Si votre CTR est faible, essayez de changer l'image ou le texte de votre annonce.
-                    </p>
-                </div>
-            <?php endif; ?>
         </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Chart === 'undefined') {
+                return;
+            }
+            var perf = document.getElementById('adwptStatsPerformanceChart');
+            if (perf) {
+                new Chart(perf, {type: 'line', data: {labels: <?php echo wp_json_encode($chart_labels); ?>, datasets: [{label: 'Impressions', data: <?php echo wp_json_encode($chart_impressions); ?>, borderColor: '#2563eb', tension: .3}, {label: 'Clics', data: <?php echo wp_json_encode($chart_clicks); ?>, borderColor: '#16a34a', tension: .3}]}, options: {responsive: true, plugins: {legend: {position: 'bottom'}}, scales: {y: {beginAtZero: true}}}});
+            }
+            var device = document.getElementById('adwptStatsDeviceChart');
+            if (device) {
+                new Chart(device, {type: 'doughnut', data: {labels: <?php echo wp_json_encode(array_map(function($row) { return $row['device'] ?: 'desktop'; }, $device_rows)); ?>, datasets: [{data: <?php echo wp_json_encode(array_map(function($row) { return (int) $row['total']; }, $device_rows)); ?>, backgroundColor: ['#2563eb', '#16a34a', '#f59e0b']}]}, options: {responsive: true, plugins: {legend: {position: 'bottom'}}}});
+            }
+        });
+        </script>
         <?php
     }
-    
+
     /**
      * Add meta boxes
      */
@@ -1105,379 +677,111 @@ class ADWPT_Admin {
         if (!class_exists('ADWPT_Settings')) {
             require_once ADWPT_PLUGIN_DIR . 'includes/class-adwpt-settings.php';
         }
+
         ADWPT_Settings::render();
-        return;
+    }
+
+    /**
+     * Render tools page.
+     */
+    public function render_tools_page() {
+        if (!current_user_can($this->get_plugin_capability())) {
+            wp_die(__('Vous n’avez pas les permissions nécessaires.', 'adwptracker'));
+        }
+
+        global $wpdb;
+        $stats_table = $wpdb->prefix . 'adwptracker_stats';
+        $stats_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$stats_table}");
         ?>
         <div class="wrap">
-            <h1 style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
-                <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px;">⚙️</span>
-                <span style="font-weight: 600;"><?php esc_html_e('Paramètres', 'adwptracker'); ?></span>
-            </h1>
-            
-            <?php
-            // Handle form submission
-            if (isset($_POST['adwpt_settings_submit'])) {
-                check_admin_referer('adwpt_settings_nonce');
-                
-                // Save all settings
-                update_option('adwpt_tracking_enabled', isset($_POST['tracking_enabled']) ? '1' : '0');
-                update_option('adwpt_notification_email', sanitize_email($_POST['notification_email']));
-                update_option('adwpt_cache_enabled', isset($_POST['cache_enabled']) ? '1' : '0');
-                update_option('adwpt_cache_duration', intval($_POST['cache_duration']));
-                update_option('adwpt_lazy_load', isset($_POST['lazy_load']) ? '1' : '0');
-                update_option('adwpt_auto_optimize', isset($_POST['auto_optimize']) ? '1' : '0');
-                update_option('adwpt_gdpr_mode', isset($_POST['gdpr_mode']) ? '1' : '0');
-                update_option('adwpt_data_retention', intval($_POST['data_retention']));
-                
-                echo '<div class="notice notice-success is-dismissible" style="border-left: 4px solid #10b981;"><p><strong>✅ ' . __('Paramètres enregistrés avec succès !', 'adwptracker') . '</strong></p></div>';
-            }
-            
-            // Handle reset stats
-            if (isset($_POST['adwpt_reset_stats'])) {
-                check_admin_referer('adwpt_reset_stats_nonce');
-                
-                global $wpdb;
-                $table_name = $wpdb->prefix . 'adwpt_stats';
-                $wpdb->query("TRUNCATE TABLE $table_name");
-                
-                echo '<div class="notice notice-success is-dismissible" style="border-left: 4px solid #10b981;"><p><strong>✅ ' . __('Statistiques réinitialisées avec succès !', 'adwptracker') . '</strong></p></div>';
-            }
-            
-            // Handle export settings
-            if (isset($_POST['adwpt_export_settings'])) {
-                check_admin_referer('adwpt_export_settings_nonce');
-                
-                $settings = [
-                    'tracking_enabled' => get_option('adwpt_tracking_enabled', '1'),
-                    'notification_email' => get_option('adwpt_notification_email'),
-                    'cache_enabled' => get_option('adwpt_cache_enabled', '0'),
-                    'cache_duration' => get_option('adwpt_cache_duration', '3600'),
-                    'lazy_load' => get_option('adwpt_lazy_load', '0'),
-                    'auto_optimize' => get_option('adwpt_auto_optimize', '0'),
-                    'gdpr_mode' => get_option('adwpt_gdpr_mode', '0'),
-                    'data_retention' => get_option('adwpt_data_retention', '90'),
-                ];
-                
-                header('Content-Type: application/json');
-                header('Content-Disposition: attachment; filename="adwptracker-settings-' . date('Y-m-d') . '.json"');
-                echo json_encode($settings, JSON_PRETTY_PRINT);
-                exit;
-            }
-            
-            // Get current settings
-            $tracking_enabled = get_option('adwpt_tracking_enabled', '1');
-            $notification_email = get_option('adwpt_notification_email', get_option('admin_email'));
-            $cache_enabled = get_option('adwpt_cache_enabled', '0');
-            $cache_duration = get_option('adwpt_cache_duration', '3600');
-            $lazy_load = get_option('adwpt_lazy_load', '0');
-            $auto_optimize = get_option('adwpt_auto_optimize', '0');
-            $gdpr_mode = get_option('adwpt_gdpr_mode', '0');
-            $data_retention = get_option('adwpt_data_retention', '90');
-            
-            // Get database stats
-            global $wpdb;
-            $stats_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}adwpt_stats");
-            $db_size = $wpdb->get_var("SELECT ROUND(((data_length + index_length) / 1024 / 1024), 2) as size FROM information_schema.TABLES WHERE table_schema = '" . DB_NAME . "' AND table_name = '{$wpdb->prefix}adwpt_stats'");
-            ?>
-            
-            <div style="max-width: 900px; margin-top: 20px;">
-                
-                <!-- General Settings -->
-                <div class="adwpt-widget" style="margin-bottom: 20px;">
-                    <h2>🎛️ <?php esc_html_e('General Settings', 'adwptracker'); ?></h2>
-                    
-                    <form method="post" action="">
-                        <?php wp_nonce_field('adwpt_settings_nonce'); ?>
-                        
-                        <table class="form-table">
-                            <!-- Tracking Enable/Disable -->
-                            <tr>
-                                <th scope="row">
-                                    <label for="tracking_enabled">
-                                        📊 <?php esc_html_e('Statistics Tracking', 'adwptracker'); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <label style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="checkbox" 
-                                               name="tracking_enabled" 
-                                               id="tracking_enabled" 
-                                               value="1" 
-                                               <?php checked($tracking_enabled, '1'); ?>
-                                               style="width: 18px; height: 18px;">
-                                        <span style="font-weight: 500;">
-                                            <?php esc_html_e('Enable impressions and clicks tracking', 'adwptracker'); ?>
-                                        </span>
-                                    </label>
-                                    <p class="description">
-                                        <?php esc_html_e('Disable this to stop collecting statistics (not recommended)', 'adwptracker'); ?>
-                                    </p>
-                                </td>
-                            </tr>
-                            
-                            <!-- Email Notifications -->
-                            <tr>
-                                <th scope="row">
-                                    <label for="notification_email">
-                                        📧 <?php esc_html_e('Notification Email', 'adwptracker'); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <input type="email" 
-                                           name="notification_email" 
-                                           id="notification_email" 
-                                           value="<?php echo esc_attr($notification_email); ?>" 
-                                           class="regular-text"
-                                           style="padding: 8px;">
-                                    <p class="description">
-                                        <?php esc_html_e('Email address for weekly statistics reports (coming soon)', 'adwptracker'); ?>
-                                    </p>
-                                </td>
-                            </tr>
-                            
-                            <!-- Dark Mode -->
-                            <tr>
-                                <th scope="row">
-                                    <label for="dark_mode">
-                                        🌙 <?php esc_html_e('Dark Mode', 'adwptracker'); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <label style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="checkbox" 
-                                               name="dark_mode" 
-                                               id="dark_mode" 
-                                               value="1" 
-                                               <?php checked($dark_mode, '1'); ?>
-                                               style="width: 18px; height: 18px;">
-                                        <span style="font-weight: 500;">
-                                            <?php esc_html_e('Enable dark mode for admin dashboard', 'adwptracker'); ?>
-                                        </span>
-                                    </label>
-                                    <p class="description">
-                                        <?php esc_html_e('Switch to dark theme for better viewing at night', 'adwptracker'); ?>
-                                    </p>
-                                </td>
-                            </tr>
-                        </table>
-                        
-                        <p class="submit">
-                            <button type="submit" 
-                                    name="adwpt_settings_submit" 
-                                    class="button button-primary button-large"
-                                    style="padding: 10px 30px; font-size: 14px;">
-                                💾 <?php esc_html_e('Save Settings', 'adwptracker'); ?>
-                            </button>
-                        </p>
-                    </form>
+            <div class="adwpt-admin">
+                <div class="adwpt-page-header">
+                    <div>
+                        <h1 class="adwpt-page-title"><?php esc_html_e('Outils', 'adwptracker'); ?></h1>
+                        <p class="adwpt-page-subtitle"><?php esc_html_e('Utilitaires et ressources pour gérer le plugin.', 'adwptracker'); ?></p>
+                    </div>
                 </div>
-                
-                <!-- Statistics Management -->
-                <div class="adwpt-widget" style="margin-bottom: 20px; border: 2px solid #dc3545;">
-                    <h2 style="color: #dc3545;">⚠️ <?php esc_html_e('Danger Zone', 'adwptracker'); ?></h2>
-                    
-                    <form method="post" action="" onsubmit="return confirm('<?php echo esc_js(__('Are you sure? This will delete ALL statistics permanently!', 'adwptracker')); ?>');">
-                        <?php wp_nonce_field('adwpt_reset_stats_nonce'); ?>
-                        
-                        <table class="form-table">
-                            <tr>
-                                <th scope="row">
-                                    🗑️ <?php esc_html_e('Reset Statistics', 'adwptracker'); ?>
-                                </th>
-                                <td>
-                                    <p style="margin-bottom: 15px; color: #721c24;">
-                                        <strong><?php esc_html_e('Warning:', 'adwptracker'); ?></strong>
-                                        <?php esc_html_e('This will permanently delete all impressions and clicks data. This action cannot be undone!', 'adwptracker'); ?>
-                                    </p>
-                                    <button type="submit" 
-                                            name="adwpt_reset_stats" 
-                                            class="button button-secondary"
-                                            style="background: #dc3545; color: white; border-color: #dc3545; padding: 8px 20px;">
-                                        🗑️ <?php esc_html_e('Reset All Statistics', 'adwptracker'); ?>
-                                    </button>
-                                </td>
-                            </tr>
-                        </table>
-                    </form>
+
+                <div class="adwpt-grid adwpt-grid-4">
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Exporter les données', 'adwptracker'); ?></h2>
+                        <p class="adwpt-page-subtitle"><?php esc_html_e('Télécharger les statistiques au format CSV.', 'adwptracker'); ?></p>
+                        <p><a class="adwpt-button adwpt-button-primary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?adwptracker_export=csv'), 'adwptracker_export_csv')); ?>"><?php esc_html_e('Exporter', 'adwptracker'); ?></a></p>
+                    </div>
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Vérifier l’installation', 'adwptracker'); ?></h2>
+                        <p class="adwpt-page-subtitle"><?php printf(esc_html__('Table stats : %s lignes.', 'adwptracker'), number_format_i18n($stats_count)); ?></p>
+                        <p><span class="adwpt-badge adwpt-badge-active"><?php esc_html_e('Installation détectée', 'adwptracker'); ?></span></p>
+                    </div>
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Shortcodes', 'adwptracker'); ?></h2>
+                        <p><code>[adwptracker_zone id="123"]</code></p>
+                        <p><code>[adwptracker_ad id="123"]</code></p>
+                    </div>
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Version', 'adwptracker'); ?></h2>
+                        <div class="adwpt-kpi-value"><?php echo esc_html(ADWPT_VERSION); ?></div>
+                    </div>
                 </div>
-                
-                <!-- Plugin Info -->
-                <div class="adwpt-widget">
-                    <h2>ℹ️ <?php esc_html_e('Plugin Information', 'adwptracker'); ?></h2>
-                    <table class="form-table">
-                        <tr>
-                            <th scope="row"><?php esc_html_e('Version', 'adwptracker'); ?></th>
-                            <td><strong><?php echo ADWPT_VERSION; ?></strong></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><?php esc_html_e('Status', 'adwptracker'); ?></th>
-                            <td><span style="color: #155724; font-weight: bold;">✅ <?php esc_html_e('Full Version', 'adwptracker'); ?></span></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><?php esc_html_e('Features', 'adwptracker'); ?></th>
-                            <td>
-                                <ul style="margin: 0; padding-left: 20px;">
-                                    <li>✅ <?php esc_html_e('Unlimited Zones & Ads', 'adwptracker'); ?></li>
-                                    <li>✅ <?php esc_html_e('Real-time Statistics', 'adwptracker'); ?></li>
-                                    <li>✅ <?php esc_html_e('Mobile Sticky Footer', 'adwptracker'); ?></li>
-                                    <li>✅ <?php esc_html_e('Device Targeting', 'adwptracker'); ?></li>
-                                    <li>✅ <?php esc_html_e('CSV Export', 'adwptracker'); ?></li>
-                                    <li>✅ <?php esc_html_e('4 Ad Types', 'adwptracker'); ?></li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                
             </div>
         </div>
-        
-        <?php if ($dark_mode === '1'): ?>
-        <style>
-            /* Simple Dark Mode for Dashboard */
-            .adwpt-widget {
-                background: #1e293b !important;
-                color: #e2e8f0 !important;
-            }
-            .adwpt-widget h2 {
-                color: #f1f5f9 !important;
-            }
-            .form-table th,
-            .form-table td {
-                color: #e2e8f0 !important;
-            }
-            .description {
-                color: #94a3b8 !important;
-            }
-        </style>
-        <?php endif; ?>
         <?php
     }
-    
-    /**
-     * Show limit notices for FREE version
-     */
+
     /**
      * Render documentation page
      */
     public function render_docs_page() {
         ?>
         <div class="wrap">
-            <h1>📖 <?php esc_html_e('Documentation', 'adwptracker'); ?></h1>
-            
-            <div style="max-width: 900px;">
-                <div class="adwpt-widget" style="margin-top: 20px;">
-                    <h2>🚀 <?php esc_html_e('Quick Start Guide', 'adwptracker'); ?></h2>
-                    
-                    <h3>1. Créer une Zone</h3>
-                    <p>AdWPtracker → Zones → Nouvelle zone</p>
-                    <ul style="list-style: disc; margin-left: 20px;">
-                        <li>Choisir un nom (ex: "Header", "Sidebar")</li>
-                        <li>Sélectionner le format (ex: Leaderboard 728×90)</li>
-                        <li>Configurer le mode d'affichage (Random ou Toutes)</li>
-                        <li>Activer/désactiver le slider</li>
-                    </ul>
-                    
-                    <h3>2. Créer des Annonces</h3>
-                    <p>AdWPtracker → Annonces → Nouvelle annonce</p>
-                    <ul style="list-style: disc; margin-left: 20px;">
-                        <li>Choisir un titre</li>
-                        <li>Sélectionner la zone</li>
-                        <li>Upload une image ou code HTML</li>
-                        <li>Ajouter un lien (optionnel)</li>
-                        <li>Définir les dates (optionnel)</li>
-                    </ul>
-                    
-                    <h3>3. Afficher sur le site</h3>
-                    <p><strong>Dans ton thème (header.php, sidebar.php, etc.) :</strong></p>
-                    <code style="display: block; background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 10px 0;">
-&lt;?php<br>
-if (function_exists('adwptracker_display_zone')) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;adwptracker_display_zone(1); // ID de la zone<br>
-}<br>
-?&gt;
-                    </code>
-                    
-                    <p><strong>Ou en shortcode :</strong></p>
-                    <code style="display: block; background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 10px 0;">
-[adwptracker_zone id="1"]
-                    </code>
+            <div class="adwpt-admin">
+                <div class="adwpt-page-header">
+                    <div>
+                        <h1 class="adwpt-page-title"><?php esc_html_e('Aide', 'adwptracker'); ?></h1>
+                        <p class="adwpt-page-subtitle"><?php esc_html_e('Documentation, shortcodes et résolution des problèmes.', 'adwptracker'); ?></p>
+                    </div>
+                    <span class="adwpt-badge adwpt-badge-draft">v<?php echo esc_html(ADWPT_VERSION); ?></span>
                 </div>
-                
-                <div class="adwpt-widget" style="margin-top: 20px;">
-                    <h2>📐 <?php esc_html_e('Available Formats', 'adwptracker'); ?></h2>
-                    <table class="widefat" style="margin-top: 10px;">
-                        <thead>
-                            <tr>
-                                <th>Format</th>
-                                <th>Dimensions</th>
-                                <th>Usage</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>Responsive</td><td>100% × auto</td><td>Mobile-first</td></tr>
-                            <tr><td>Leaderboard</td><td>728 × 90</td><td>Header desktop</td></tr>
-                            <tr><td>Medium Rectangle</td><td>300 × 250</td><td>Content</td></tr>
-                            <tr><td>Large Rectangle</td><td>336 × 280</td><td>Content</td></tr>
-                            <tr><td>Wide Skyscraper</td><td>160 × 600</td><td>Sidebar</td></tr>
-                            <tr><td>Half Page</td><td>300 × 600</td><td>Sidebar</td></tr>
-                        </tbody>
-                    </table>
+
+                <div class="adwpt-grid adwpt-grid-2">
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Documentation', 'adwptracker'); ?></h2>
+                        <p><?php esc_html_e('Créez une zone, rattachez une ou plusieurs publicités, puis insérez le shortcode de la zone dans votre thème ou constructeur.', 'adwptracker'); ?></p>
+                    </div>
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Shortcodes', 'adwptracker'); ?></h2>
+                        <p><code>[adwptracker_zone id="123"]</code></p>
+                        <p><code>[adwptracker_ad id="123"]</code></p>
+                    </div>
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Zones d’affichage', 'adwptracker'); ?></h2>
+                        <p><?php esc_html_e('Les dimensions, le mode aléatoire/toutes et le slider se règlent au niveau de la zone.', 'adwptracker'); ?></p>
+                    </div>
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Tracking', 'adwptracker'); ?></h2>
+                        <p><?php esc_html_e('Les impressions sont enregistrées quand une publicité devient visible. Les clics sont envoyés en arrière-plan sans bloquer l’ouverture du lien.', 'adwptracker'); ?></p>
+                    </div>
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('FAQ', 'adwptracker'); ?></h2>
+                        <p><strong><?php esc_html_e('Pourquoi une zone est vide ?', 'adwptracker'); ?></strong><br><?php esc_html_e('Vérifiez que la publicité est active, publiée, rattachée à cette zone et visible sur l’appareil courant.', 'adwptracker'); ?></p>
+                    </div>
+                    <div class="adwpt-card">
+                        <h2 class="adwpt-section-title"><?php esc_html_e('Résolution des problèmes', 'adwptracker'); ?></h2>
+                        <p><?php esc_html_e('Videz le cache après une mise à jour, vérifiez le shortcode et confirmez que le dossier plugin actif est le bon.', 'adwptracker'); ?></p>
+                    </div>
                 </div>
             </div>
         </div>
         <?php
     }
-    
-    /**
-     * Render liste complète page
-     */
-    public function render_liste_page() {
-        if (!class_exists('ADWPT_Liste')) {
-            require_once ADWPT_PLUGIN_DIR . 'includes/class-adwpt-liste.php';
-        }
-        ADWPT_Liste::render_page();
-    }
-    
+
     /**
      * Render support page
      */
     public function render_support_page() {
-        ?>
-        <div class="wrap">
-            <h1>💬 <?php esc_html_e('Support', 'adwptracker'); ?></h1>
-            
-            <div class="adwpt-widget" style="max-width: 800px; margin-top: 20px;">
-                <h2><?php esc_html_e('Besoin d\'aide ?', 'adwptracker'); ?></h2>
-                
-                <h3>📧 Contact</h3>
-                <p><?php esc_html_e('Pour toute question ou problème, contactez le développeur.', 'adwptracker'); ?></p>
-                
-                <h3>🐛 Rapport de bug</h3>
-                <p><?php esc_html_e('Si vous rencontrez un bug, merci de fournir :', 'adwptracker'); ?></p>
-                <ul style="list-style: disc; margin-left: 20px;">
-                    <li>Version de WordPress</li>
-                    <li>Version du plugin : <strong>v<?php echo ADWPT_VERSION; ?></strong></li>
-                    <li>Thème utilisé</li>
-                    <li>Description du problème</li>
-                    <li>Capture d'écran si possible</li>
-                </ul>
-                
-                <h3>💡 Suggestions</h3>
-                <p><?php esc_html_e('Vos suggestions d\'amélioration sont les bienvenues !', 'adwptracker'); ?></p>
-                
-                <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white;">
-                    <h3 style="margin-top: 0; color: white;"><?php esc_html_e('Informations système', 'adwptracker'); ?></h3>
-                    <p><strong>Version du plugin :</strong> <?php echo ADWPT_VERSION; ?></p>
-                    <p><strong>Version WordPress :</strong> <?php echo get_bloginfo('version'); ?></p>
-                    <p><strong>Version PHP :</strong> <?php echo PHP_VERSION; ?></p>
-                    <p><strong>Thème actif :</strong> <?php echo wp_get_theme()->get('Name'); ?></p>
-                </div>
-            </div>
-        </div>
-        <?php
+        $this->render_docs_page();
     }
-    
+
     /**
      * Render ad meta box
      */
@@ -1501,9 +805,17 @@ if (function_exists('adwptracker_display_zone')) {<br>
         $start_date = get_post_meta($post->ID, '_adwpt_start_date', true);
         $end_date = get_post_meta($post->ID, '_adwpt_end_date', true);
         
-        // New options
-        $show_on_mobile = get_post_meta($post->ID, '_adwpt_show_on_mobile', true) !== '0';
-        $show_on_desktop = get_post_meta($post->ID, '_adwpt_show_on_desktop', true) !== '0';
+        // Device options. Legacy _adwpt_device is only used when the new checkboxes were never saved.
+        $show_on_mobile_meta = get_post_meta($post->ID, '_adwpt_show_on_mobile', true);
+        $show_on_desktop_meta = get_post_meta($post->ID, '_adwpt_show_on_desktop', true);
+        $legacy_device = get_post_meta($post->ID, '_adwpt_device', true);
+        $show_on_mobile = $show_on_mobile_meta !== '0';
+        $show_on_desktop = $show_on_desktop_meta !== '0';
+
+        if ($show_on_mobile_meta === '' && $show_on_desktop_meta === '' && $legacy_device) {
+            $show_on_mobile = in_array($legacy_device, ['all', 'mobile', 'tablet'], true);
+            $show_on_desktop = in_array($legacy_device, ['all', 'desktop'], true);
+        }
         $sticky_enabled = get_post_meta($post->ID, '_adwpt_sticky_enabled', true);
         $sticky_position = get_post_meta($post->ID, '_adwpt_sticky_position', true) ?: 'top';
         
@@ -1512,19 +824,60 @@ if (function_exists('adwptracker_display_zone')) {<br>
             'posts_per_page' => -1,
             'post_status' => 'publish',
         ]);
+
+        $selected_zone_title = $zone_id ? get_the_title($zone_id) : '';
+        $device_label = [];
+        if ($show_on_desktop) {
+            $device_label[] = __('Desktop', 'adwptracker');
+        }
+        if ($show_on_mobile) {
+            $device_label[] = __('Mobile/Tablette', 'adwptracker');
+        }
+        $device_label = $device_label ? implode(' + ', $device_label) : __('Aucun appareil', 'adwptracker');
+
+        $current_date = current_time('Y-m-d');
+        $schedule_label = __('Toujours visible', 'adwptracker');
+        if ($start_date && $start_date > $current_date) {
+            $schedule_label = sprintf(__('Démarre le %s', 'adwptracker'), $start_date);
+        } elseif ($end_date && $end_date < $current_date) {
+            $schedule_label = sprintf(__('Expirée le %s', 'adwptracker'), $end_date);
+        } elseif ($start_date || $end_date) {
+            $schedule_label = trim(($start_date ?: '...') . ' → ' . ($end_date ?: '...'));
+        }
         
         ?>
+        <div class="adwpt-delivery-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 0 0 18px; padding: 14px; background: #f8fafc; border: 1px solid #dbe3ea; border-radius: 8px;">
+            <div>
+                <strong style="display:block; color:#1d2327;"><?php esc_html_e('État', 'adwptracker'); ?></strong>
+                <span style="color: <?php echo $status === 'active' ? '#047857' : '#b91c1c'; ?>;"><?php echo esc_html($status === 'active' ? __('Active', 'adwptracker') : __('Inactive', 'adwptracker')); ?></span>
+            </div>
+            <div>
+                <strong style="display:block; color:#1d2327;"><?php esc_html_e('Zone', 'adwptracker'); ?></strong>
+                <span style="color: <?php echo $zone_id ? '#047857' : '#b91c1c'; ?>;"><?php echo esc_html($zone_id ? $selected_zone_title : __('Aucune zone sélectionnée', 'adwptracker')); ?></span>
+            </div>
+            <div>
+                <strong style="display:block; color:#1d2327;"><?php esc_html_e('Appareils', 'adwptracker'); ?></strong>
+                <span><?php echo esc_html($device_label); ?></span>
+            </div>
+            <div>
+                <strong style="display:block; color:#1d2327;"><?php esc_html_e('Calendrier', 'adwptracker'); ?></strong>
+                <span><?php echo esc_html($schedule_label); ?></span>
+            </div>
+        </div>
+
+        <div class="adwpt-form-grid">
+            <div class="adwpt-card">
         <table class="form-table">
             <tr>
                 <th><label for="adwpt_type"><?php esc_html_e('Type d\'annonce', 'adwptracker'); ?></label></th>
                 <td>
                     <select name="adwpt_type" id="adwpt_type" class="regular-text">
-                        <option value="image" <?php selected($type, 'image'); ?>>🖼️ <?php esc_html_e('Image', 'adwptracker'); ?></option>
-                        <option value="html" <?php selected($type, 'html'); ?>>💻 <?php esc_html_e('HTML/Code', 'adwptracker'); ?></option>
-                        <option value="text" <?php selected($type, 'text'); ?>>📝 <?php esc_html_e('Text', 'adwptracker'); ?></option>
-                        <option value="video" <?php selected($type, 'video'); ?>>🎥 <?php esc_html_e('Video', 'adwptracker'); ?></option>
+                        <option value="image" <?php selected($type, 'image'); ?>><?php esc_html_e('Image', 'adwptracker'); ?></option>
+                        <option value="html" <?php selected($type, 'html'); ?>><?php esc_html_e('HTML / Script publicitaire', 'adwptracker'); ?></option>
+                        <option value="text" <?php selected($type, 'text'); ?>><?php esc_html_e('Texte', 'adwptracker'); ?></option>
+                        <option value="video" <?php selected($type, 'video'); ?>><?php esc_html_e('Vidéo', 'adwptracker'); ?></option>
                     </select>
-                    <p class="description"><?php esc_html_e('Choose advertising content type', 'adwptracker'); ?></p>
+                    <p class="description"><?php esc_html_e('Choisissez le type de contenu publicitaire.', 'adwptracker'); ?></p>
                 </td>
             </tr>
             
@@ -1549,7 +902,7 @@ if (function_exists('adwptracker_display_zone')) {<br>
                         </script>
                     <?php endif; ?>
                     <p class="description">
-                        💡 <strong>Formats recommandés :</strong><br>
+                        <strong><?php esc_html_e('Aide formats image', 'adwptracker'); ?> :</strong><br>
                         <select id="adwpt_format_helper" style="margin-top: 5px;">
                             <option value="">-- Choisir un format standard --</option>
                             <option value="728x90">Leaderboard (728×90) - Desktop Header</option>
@@ -1558,11 +911,13 @@ if (function_exists('adwptracker_display_zone')) {<br>
                             <option value="336x280">Large Rectangle (336×280) - Content</option>
                             <option value="468x60">Banner (468×60) - Header/Footer</option>
                             <option value="970x90">Large Leaderboard (970×90) - Top</option>
+                            <option value="970x100">Header Banner (970×100) - Top</option>
+                            <option value="970x250">Billboard (970×250) - Top</option>
                             <option value="160x600">Wide Skyscraper (160×600) - Sidebar</option>
                             <option value="300x600">Half Page (300×600) - Sidebar</option>
                         </select>
                         <span style="display: block; margin-top: 5px; color: #666; font-size: 12px;">
-                            Sélectionnez un format pour voir les dimensions recommandées. Format WebP ou JPG conseillé.
+                            <?php esc_html_e('Ce menu indique le format recommandé du fichier image. Le format d’affichage réel se règle dans la zone.', 'adwptracker'); ?>
                         </span>
                     </p>
                     <script>
@@ -1575,6 +930,10 @@ if (function_exists('adwptracker_display_zone')) {<br>
                                     desc += ' (Idéal pour sticky footer mobile)';
                                 } else if (format === '728x90') {
                                     desc += ' (Standard desktop header)';
+                                } else if (format === '970x100') {
+                                    desc += ' (Header large personnalisé)';
+                                } else if (format === '970x250') {
+                                    desc += ' (Billboard grand format)';
                                 }
                                 $(this).next('span').html('<strong style="color: #0066FF;">✓ ' + desc + '</strong>');
                             }
@@ -1670,6 +1029,7 @@ if (function_exists('adwptracker_display_zone')) {<br>
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <p class="description"><?php esc_html_e('Obligatoire pour afficher cette annonce avec un shortcode de zone.', 'adwptracker'); ?></p>
                 </td>
             </tr>
             
@@ -1784,6 +1144,25 @@ if (function_exists('adwptracker_display_zone')) {<br>
                 </td>
             </tr>
         </table>
+            </div>
+
+            <aside class="adwpt-card adwpt-preview-panel">
+                <h2 class="adwpt-section-title"><?php esc_html_e('Aperçu', 'adwptracker'); ?></h2>
+                <div id="adwpt-live-preview" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; background: #f9fafb; min-height: 180px;">
+                    <?php if ($type === 'image' && $image_url): ?>
+                        <img src="<?php echo esc_url($image_url); ?>" alt="" style="display:block; max-width:100%; height:auto; margin:0 auto; border-radius:6px;">
+                    <?php elseif ($type === 'text' && ($text_title || $text_content)): ?>
+                        <strong><?php echo esc_html($text_title); ?></strong>
+                        <p><?php echo esc_html($text_content); ?></p>
+                    <?php elseif ($type === 'html' && $html_code): ?>
+                        <div style="max-height:160px; overflow:auto;"><?php echo wp_kses_post($html_code); ?></div>
+                    <?php else: ?>
+                        <p class="description"><?php esc_html_e('Complétez le contenu pour afficher un aperçu.', 'adwptracker'); ?></p>
+                    <?php endif; ?>
+                </div>
+                <p class="description" style="margin-top:10px;"><?php esc_html_e('Aperçu indicatif. Le rendu final dépend de la zone et du thème.', 'adwptracker'); ?></p>
+            </aside>
+        </div>
         
         <script>
         jQuery(document).ready(function($) {
@@ -1877,6 +1256,11 @@ if (function_exists('adwptracker_display_zone')) {<br>
                 'width' => '970px',
                 'height' => '90px',
             ],
+            'large_leaderboard_100' => [
+                'label' => 'Header Banner (970×100)',
+                'width' => '970px',
+                'height' => '100px',
+            ],
             'billboard' => [
                 'label' => 'Billboard (970×250)',
                 'width' => '970px',
@@ -1908,7 +1292,7 @@ if (function_exists('adwptracker_display_zone')) {<br>
                 'height' => 'auto',
             ],
             'custom' => [
-                'label' => 'Personnalisé',
+                'label' => 'Personnalisé (dimensions libres)',
                 'width' => '',
                 'height' => '',
             ],
@@ -2015,8 +1399,9 @@ if (function_exists('adwptracker_display_zone')) {<br>
                             <input type="text" name="adwpt_custom_width" id="adwpt_custom_width" 
                                    value="<?php echo esc_attr($custom_width); ?>" 
                                    class="small-text" 
-                                   placeholder="728px">
-                            <span class="description">Ex: 728px, 90vw</span>
+                                   style="width: 120px;"
+                                   placeholder="970px">
+                            <span class="description">Ex: 970px, 100%, 90vw</span>
                         </label>
                         
                         <label style="display: inline-block;">
@@ -2024,9 +1409,14 @@ if (function_exists('adwptracker_display_zone')) {<br>
                             <input type="text" name="adwpt_custom_height" id="adwpt_custom_height" 
                                    value="<?php echo esc_attr($custom_height); ?>" 
                                    class="small-text" 
-                                   placeholder="90px">
-                            <span class="description">Ex: 90px, auto</span>
+                                   style="width: 120px;"
+                                   placeholder="100px">
+                            <span class="description">Ex: 100px, 250px, auto</span>
                         </label>
+
+                        <p class="description" style="margin: 8px 0 0;">
+                            <?php esc_html_e('Astuce : les valeurs numériques sont automatiquement enregistrées en pixels. Vous pouvez aussi saisir un raccourci comme 970x100 dans le champ largeur.', 'adwptracker'); ?>
+                        </p>
                     </div>
                     
                     <div id="size-preview" style="margin-top: 15px; padding: 15px; background: #f0f6fc; border-left: 4px solid #2271b1;">
@@ -2155,6 +1545,7 @@ if (function_exists('adwptracker_display_zone')) {<br>
             // Handle checkboxes (mobile/desktop)
             update_post_meta($post_id, '_adwpt_show_on_mobile', isset($_POST['adwpt_show_on_mobile']) ? '1' : '0');
             update_post_meta($post_id, '_adwpt_show_on_desktop', isset($_POST['adwpt_show_on_desktop']) ? '1' : '0');
+            delete_post_meta($post_id, '_adwpt_device');
         }
         
         // Save zone meta
@@ -2183,7 +1574,7 @@ if (function_exists('adwptracker_display_zone')) {<br>
             
             // Handle ad size
             if (isset($_POST['adwpt_ad_size'])) {
-                $ad_size = sanitize_text_field($_POST['adwpt_ad_size']);
+                $ad_size = sanitize_key($_POST['adwpt_ad_size']);
                 update_post_meta($post_id, '_adwpt_ad_size', $ad_size);
                 
                 // Predefined sizes mapping
@@ -2196,6 +1587,7 @@ if (function_exists('adwptracker_display_zone')) {<br>
                     'skyscraper' => ['width' => '160px', 'height' => '600px'],
                     'half_page' => ['width' => '300px', 'height' => '600px'],
                     'large_leaderboard' => ['width' => '970px', 'height' => '90px'],
+                    'large_leaderboard_100' => ['width' => '970px', 'height' => '100px'],
                     'billboard' => ['width' => '970px', 'height' => '250px'],
                     'square' => ['width' => '250px', 'height' => '250px'],
                     'small_square' => ['width' => '200px', 'height' => '200px'],
@@ -2206,8 +1598,9 @@ if (function_exists('adwptracker_display_zone')) {<br>
                 
                 if ($ad_size === 'custom') {
                     // Use custom dimensions
-                    $custom_width = isset($_POST['adwpt_custom_width']) ? sanitize_text_field($_POST['adwpt_custom_width']) : '';
-                    $custom_height = isset($_POST['adwpt_custom_height']) ? sanitize_text_field($_POST['adwpt_custom_height']) : '';
+                    $custom_width_raw = isset($_POST['adwpt_custom_width']) ? sanitize_text_field($_POST['adwpt_custom_width']) : '';
+                    $custom_height_raw = isset($_POST['adwpt_custom_height']) ? sanitize_text_field($_POST['adwpt_custom_height']) : '';
+                    list($custom_width, $custom_height) = $this->normalize_zone_dimensions($custom_width_raw, $custom_height_raw);
                     
                     update_post_meta($post_id, '_adwpt_custom_width', $custom_width);
                     update_post_meta($post_id, '_adwpt_custom_height', $custom_height);

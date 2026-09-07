@@ -94,14 +94,25 @@ jQuery(document).ready(function($) {
         var adType = $('#adwpt_type').val();
         var imageField = $('.adwpt-image-field');
         var htmlField = $('.adwpt-html-field');
+        var textField = $('.adwpt-text-field');
+        var videoField = $('.adwpt-video-field');
         
+        imageField.hide();
+        htmlField.hide();
+        textField.hide();
+        videoField.hide();
+
         if (adType === 'image') {
             imageField.show();
-            htmlField.hide();
-        } else {
-            imageField.hide();
+        } else if (adType === 'html') {
             htmlField.show();
+        } else if (adType === 'text') {
+            textField.show();
+        } else if (adType === 'video') {
+            videoField.show();
         }
+
+        updateAdPreview();
     }
     
     // Initial toggle
@@ -115,68 +126,58 @@ jQuery(document).ready(function($) {
      */
     $(document).on('click', '.column-shortcode code', function() {
         var text = $(this).text();
-        
-        // Create temporary input
+        var code = $(this);
+        var copied = function() {
+            var original = code.text();
+            code.text('✓ Copié !');
+            setTimeout(function() {
+                code.text(original);
+            }, 2000);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(copied);
+            return;
+        }
+
         var temp = $('<input>');
         $('body').append(temp);
         temp.val(text).select();
         document.execCommand('copy');
         temp.remove();
-        
-        // Show feedback
-        var original = $(this).text();
-        $(this).text('✓ Copié !');
-        setTimeout(function() {
-            $(this).text(original);
-        }.bind(this), 2000);
+        copied();
     });
-});
 
-/**
- * Fix Double Badges in Admin Columns
- */
-jQuery(document).ready(function($) {
-    'use strict';
-    
-    /**
-     * Remove duplicate content in type and status columns
-     */
-    function removeDuplicateBadges() {
-        // For TYPE column - keep only adwpt-type-badge
-        $('.wp-list-table tbody td.column-type').each(function() {
-            var $cell = $(this);
-            var $badge = $cell.find('.adwpt-type-badge').first();
-            
-            if ($badge.length) {
-                // Clear cell and add only our badge
-                var badgeHtml = $badge.prop('outerHTML');
-                $cell.empty().html(badgeHtml);
-            }
-        });
-        
-        // For STATUS column - keep only our custom styled span
-        $('.wp-list-table tbody td.column-status').each(function() {
-            var $cell = $(this);
-            var $badge = $cell.find('span[style*="background"]').first();
-            
-            if ($badge.length) {
-                // Clear cell and add only our badge
-                var badgeHtml = $badge.prop('outerHTML');
-                $cell.empty().html(badgeHtml);
-            }
-        });
-        
-        console.log('AdWPtracker: Duplicate badges removed');
+    function escapeHtml(value) {
+        return $('<div>').text(value || '').html();
     }
-    
-    // Run immediately
-    removeDuplicateBadges();
-    
-    // Run again after DOM changes (for AJAX pagination)
-    setTimeout(removeDuplicateBadges, 500);
-    
-    // Run when page numbers clicked
-    $(document).on('click', '.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a', function() {
-        setTimeout(removeDuplicateBadges, 500);
-    });
+
+    function updateAdPreview() {
+        var preview = $('#adwpt-live-preview');
+        if (!preview.length) {
+            return;
+        }
+
+        var type = $('#adwpt_type').val();
+        var imageUrl = $('#adwpt_image_url').val();
+        var htmlCode = $('#adwpt_html_code').val();
+        var textTitle = $('#adwpt_text_title').val();
+        var textContent = $('#adwpt_text_content').val();
+        var videoUrl = $('#adwpt_video_url').val();
+
+        if (type === 'image' && imageUrl) {
+            preview.html('<img src="' + escapeHtml(imageUrl) + '" alt="" style="display:block;max-width:100%;height:auto;margin:0 auto;border-radius:6px;">');
+        } else if (type === 'text' && (textTitle || textContent)) {
+            preview.html('<strong>' + escapeHtml(textTitle) + '</strong><p>' + escapeHtml(textContent) + '</p>');
+        } else if (type === 'html' && htmlCode) {
+            preview.html('<div style="max-height:160px;overflow:auto;">' + htmlCode + '</div>');
+        } else if (type === 'video' && videoUrl) {
+            preview.html('<video controls style="display:block;max-width:100%;height:auto;"><source src="' + escapeHtml(videoUrl) + '"></video>');
+        } else {
+            preview.html('<p class="description">Complétez le contenu pour afficher un aperçu.</p>');
+        }
+    }
+
+    $('#adwpt_image_url, #adwpt_html_code, #adwpt_text_title, #adwpt_text_content, #adwpt_video_url').on('input change', updateAdPreview);
+    updateAdPreview();
 });
